@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import { createContext } from 'react';
 import classNames from 'classnames';
 
-import './index.less';
+import './style.less';
 
 const TabsContext = createContext(null);
 
