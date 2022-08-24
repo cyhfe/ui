@@ -16,7 +16,6 @@ const Portal = ({ children, type = 'portal', containerRef }) => {
     body.appendChild(portalNode.current);
     forceUpdate();
     return () => {
-      console.log('remove');
       if (portalNode.current && body) {
         body.removeChild(portalNode.current);
       }

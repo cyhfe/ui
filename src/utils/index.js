@@ -6,3 +6,5 @@ export function useForceUpdate() {
     dispatch(Object.create(null));
   }, []);
 }
+
+export function noop() {}
