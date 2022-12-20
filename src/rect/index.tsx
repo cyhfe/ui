@@ -63,7 +63,6 @@ interface Options {
 }
 
 const useRect = (nodeRef: React.RefObject<Element | undefined | null>, options: Options = {}) => {
-  console.log('useRect');
   const { onChange, observe } = options;
 
   const [rect, setRect] = useState<DOMRect | null>(null);

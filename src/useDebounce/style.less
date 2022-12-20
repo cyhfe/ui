@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.tabs {
+  .tab-list {
+    background-color: #f2f2f2;
+  }
+  &.horizontal {
+    .tab-list {
+      display: flex;
+      gap: 6px;
+    }
+  }
+  &.vertical {
+    display: flex;
+    gap: 6px;
+    .tab-panels {
+      flex-grow: 1;
+    }
+  }
+}
+
+.tab {
+  cursor: pointer;
+  padding: 0.25em 0.5em;
+  border-bottom: 1px solid transparent;
+}
+
+.tab.active {
+  border-bottom: 1px solid black;
+}

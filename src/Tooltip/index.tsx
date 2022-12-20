@@ -5,7 +5,7 @@ interface TooltipProps {
 }
 
 const Tooltip = ({ children, ...props }: TooltipProps) => {
-  return <div></div>;
+  return <>{children}</>;
 };
 
 export { Tooltip };

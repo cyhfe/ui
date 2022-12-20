@@ -1,3 +1,5 @@
+import { useState, useRef } from 'react';
+import { useEffect } from 'react';
 import { useRect } from '.';
 
 export default function Example() {
