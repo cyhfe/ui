@@ -29,6 +29,9 @@ function Tooltip({ label, children }: TooltipProps) {
     popup.style.top = triggerRect.bottom + 12 + 'px';
   }
 
+  let restTimer = useRef<number | null>(null);
+  let leavingTimer = useRef<number | null>(null);
+
   useLayoutEffect(() => {
     isVisible &&
       triggerRef.current &&
@@ -39,11 +42,28 @@ function Tooltip({ label, children }: TooltipProps) {
   const child = React.Children.only(children) as any;
 
   function handleMouseEnter() {
-    setIsVisible(true);
+    if (!restTimer.current) {
+      restTimer.current = setTimeout(() => {
+        setIsVisible(true);
+      }, 1000);
+    }
+    if (leavingTimer.current) {
+      clearTimeout(leavingTimer.current);
+      leavingTimer.current = null;
+    }
   }
 
   function handleMouseLeave() {
-    setIsVisible(false);
+    if (!leavingTimer.current) {
+      leavingTimer.current = setTimeout(() => {
+        setIsVisible(false);
+      }, 500);
+    }
+
+    if (restTimer.current) {
+      clearTimeout(restTimer.current);
+      restTimer.current = null;
+    }
   }
 
   return (
