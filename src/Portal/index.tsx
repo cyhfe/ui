@@ -1,7 +1,6 @@
 import React from 'react';
 import { useRef, useLayoutEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { useForceUpdate } from '../utils';
 
 // const Portal = ({ children, type = 'portal', containerRef }) => {
 //   let mountNode = useRef(null);
@@ -29,7 +28,12 @@ import { useForceUpdate } from '../utils';
 //   );
 // };
 
-function Portal({ children, container }) {
+interface PortalProps {
+  children: React.ReactNode;
+  container?: Element | DocumentFragment;
+}
+
+function Portal({ children, container }: PortalProps) {
   let body = container ?? document.body;
   return ReactDOM.createPortal(children, body);
 }

@@ -1,3 +1,3 @@
 # Portal
 
-<code src="./demo.jsx"></code>
+<code src="./demo.tsx"></code>
