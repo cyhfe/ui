@@ -3,8 +3,10 @@ hero:
   title: library
   description: A react library developed with dumi
   actions:
-    - text: components
-      link: /components
+    - text: Hello
+      link: /
+    - text: World
+      link: /
 features:
   - title: Hello
     emoji: 💎
