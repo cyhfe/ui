@@ -9,8 +9,10 @@ import {
   createDescendantContext,
   Descendant,
   DescendantProvider,
+  useDescendant,
   useDescendantsInit,
 } from '../useDescendants/index';
+import { useStatefulRefValue } from '../useStatefulRefValue';
 interface TabsProps {
   children: React.ReactNode;
   defaultIndex?: number;
@@ -22,6 +24,7 @@ interface TabsContextValue {
   isControlled: boolean;
   selectedIndex: number;
   setSelectedIndex: React.Dispatch<React.SetStateAction<number>>;
+  onSelectTab: (index: number) => void;
 }
 
 interface TabDescendant extends Descendant<HTMLElement> {
@@ -31,9 +34,12 @@ interface TabDescendant extends Descendant<HTMLElement> {
 const TabsDescendantsContext = createDescendantContext<TabDescendant>(
   'TabsDescendantsContext',
 );
-const [TabsProvider] = createContext<TabsContextValue>('Tabs');
 
-function Tabs({ children, defaultIndex, index }: TabsProps) {
+const TabPanelsDescendantsContext = createDescendantContext('TabPanels');
+
+const [TabsProvider, useTabs] = createContext<TabsContextValue>('Tabs');
+
+function Tabs({ children, defaultIndex, index, onChange }: TabsProps) {
   let { current: isControlled } = React.useRef(index !== undefined);
 
   let [tabs, setTabs] = useDescendantsInit<TabDescendant>();
@@ -43,12 +49,21 @@ function Tabs({ children, defaultIndex, index }: TabsProps) {
     defaultIndex ?? 0,
   );
 
+  let onSelectTab = React.useCallback(
+    (index: number) => {
+      if (onChange) onChange(index);
+      setSelectedIndex(index);
+    },
+    [onChange, setSelectedIndex],
+  );
+
   return (
     <DescendantProvider Ctx={TabsDescendantsContext} items={tabs} set={setTabs}>
       <TabsProvider
         isControlled={isControlled}
         selectedIndex={selectedIndex}
         setSelectedIndex={setSelectedIndex}
+        onSelectTab={onSelectTab}
       >
         <div className="tabs">{children}</div>
       </TabsProvider>
@@ -71,15 +86,60 @@ function TabList({ children }: PropsWithChildren) {
 }
 
 function Tab({ children }: PropsWithChildren) {
-  return <div className="tab">{children}</div>;
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const [element, handleRefSet] = useStatefulRefValue(ref, null);
+  const descendant = React.useMemo(() => {
+    return {
+      element,
+      disabled: false,
+    };
+  }, [element]);
+  const index = useDescendant(descendant, TabsDescendantsContext);
+  const { onSelectTab } = useTabs('Tab');
+  return (
+    <div className="tab" ref={handleRefSet} onClick={() => onSelectTab(index)}>
+      <div>{index}</div>
+      {children}
+    </div>
+  );
 }
 
 function TabPanels({ children }: PropsWithChildren) {
-  return <div className="tab-panels">{children}</div>;
+  const [tabPanels, setTabPanels] = useDescendantsInit();
+
+  return (
+    <DescendantProvider
+      Ctx={TabPanelsDescendantsContext}
+      items={tabPanels}
+      set={setTabPanels}
+    >
+      <div className="tab-panels">{children}</div>;
+    </DescendantProvider>
+  );
 }
 
 function TabPanel({ children }: PropsWithChildren) {
-  return <div>{children}</div>;
+  const ownRef = React.useRef<HTMLDivElement | null>(null);
+
+  const [element, handleRefSet] = useStatefulRefValue(ownRef, null);
+
+  const descendant = React.useMemo(() => {
+    return {
+      element,
+    };
+  }, [element]);
+
+  const index = useDescendant(descendant, TabPanelsDescendantsContext);
+  const { selectedIndex } = useTabs('TabPanel');
+
+  const hidden = index !== selectedIndex;
+
+  return (
+    <div ref={handleRefSet} hidden={hidden}>
+      <div>{index}</div>
+      <div>{children}</div>
+    </div>
+  );
 }
 
 export { Tabs, TabList, Tab, TabPanels, TabPanel };
