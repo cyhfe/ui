@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from '@emotion/react';
-import React, { PropsWithChildren, useLayoutEffect } from 'react';
+import React, { PropsWithChildren, useEffect, useLayoutEffect } from 'react';
 import { createContext } from '../createContext';
 import { useControlledState } from '../useControlledState';
 
@@ -29,6 +29,8 @@ interface TabsContextValue {
   setSelectedIndex: React.Dispatch<React.SetStateAction<number>>;
   onSelectTab: (index: number) => void;
   orientation?: 'horizontal' | 'vertical';
+  focusIndex: number;
+  setFocusIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
 interface TabDescendant extends Descendant<HTMLElement> {
@@ -54,6 +56,8 @@ function Tabs({
 
   let [tabs, setTabs] = useDescendantsInit<TabDescendant>();
 
+  const [focusIndex, setFocusIndex] = React.useState(-1);
+
   let [selectedIndex, setSelectedIndex] = useControlledState(
     index,
     defaultIndex ?? 0,
@@ -75,6 +79,8 @@ function Tabs({
         setSelectedIndex={setSelectedIndex}
         onSelectTab={onSelectTab}
         orientation={orientation}
+        focusIndex={focusIndex}
+        setFocusIndex={setFocusIndex}
       >
         <div
           className="tabs"
@@ -93,9 +99,63 @@ function Tabs({
 }
 
 function TabList({ children }: PropsWithChildren) {
-  const { selectedIndex, setSelectedIndex, isControlled, orientation } =
-    useTabs('TabList');
+  const {
+    selectedIndex,
+    onSelectTab,
+    isControlled,
+    orientation,
+    setFocusIndex,
+    setSelectedIndex,
+  } = useTabs('TabList');
   const tabs = useDescendants(TabsDescendantsContext);
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+    let selectableTabs = tabs.filter((tab) => !tab.disabled);
+    if (!selectableTabs.length) return;
+    let currentIndex = selectableTabs.findIndex(
+      (tab) => tab.index === selectedIndex,
+    );
+
+    switch (e.key) {
+      case 'ArrowLeft': {
+        if (orientation === 'horizontal') {
+          const prev =
+            currentIndex - 1 < 0 ? selectableTabs.length - 1 : currentIndex - 1;
+          setFocusIndex(selectableTabs[prev].index);
+          onSelectTab(selectableTabs[prev].index);
+        }
+        break;
+      }
+      case 'ArrowRight': {
+        if (orientation === 'horizontal') {
+          const next =
+            currentIndex + 1 > selectableTabs.length - 1 ? 0 : currentIndex + 1;
+          setFocusIndex(selectableTabs[next].index);
+          onSelectTab(selectableTabs[next].index);
+        }
+        break;
+      }
+      case 'ArrowUp': {
+        if (orientation === 'vertical') {
+          const prev =
+            currentIndex - 1 < 0 ? selectableTabs.length - 1 : currentIndex - 1;
+          setFocusIndex(selectableTabs[prev].index);
+          onSelectTab(selectableTabs[prev].index);
+        }
+        break;
+      }
+      case 'ArrowDown': {
+        if (orientation === 'vertical') {
+          const next =
+            currentIndex + 1 > selectableTabs.length - 1 ? 0 : currentIndex + 1;
+          setFocusIndex(selectableTabs[next].index);
+          onSelectTab(selectableTabs[next].index);
+        }
+        break;
+      }
+    }
+  };
+
   useLayoutEffect(() => {
     if (!isControlled && tabs[selectedIndex]?.disabled) {
       const next = tabs.findIndex((tab) => !tab.disabled);
@@ -106,6 +166,7 @@ function TabList({ children }: PropsWithChildren) {
   return (
     <div
       className="tab-list"
+      onKeyDown={handleKeyDown}
       css={css`
         display: flex;
         flex-direction: ${orientation === 'vertical' ? 'column' : null};
@@ -124,7 +185,7 @@ interface TabProps {
 function Tab({ children, disabled }: TabProps) {
   const ref = React.useRef<HTMLButtonElement | null>(null);
   const [element, handleRefSet] = useStatefulRefValue(ref, null);
-  const { selectedIndex } = useTabs('Tab');
+  const { selectedIndex, setFocusIndex, focusIndex } = useTabs('Tab');
   const descendant = React.useMemo(() => {
     return {
       element,
@@ -134,12 +195,22 @@ function Tab({ children, disabled }: TabProps) {
   const index = useDescendant(descendant, TabsDescendantsContext);
   const isSelected = index === selectedIndex;
   const { onSelectTab } = useTabs('Tab');
+
+  useEffect(() => {
+    const isFocus = focusIndex === index;
+    if (isFocus) {
+      ref.current?.focus();
+    }
+  }, [focusIndex, index]);
+
   return (
     <button
       type="button"
       className="tab"
       ref={handleRefSet}
       onClick={() => onSelectTab(index)}
+      onFocus={() => setFocusIndex(index)}
+      onBlur={() => setFocusIndex(-1)}
       disabled={disabled}
       css={css`
         padding: 0.25rem 0.5rem;

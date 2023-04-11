@@ -23,7 +23,7 @@ function Demo() {
       <Tabs
         index={tabIndex}
         onChange={(index) => {
-          console.log(index);
+          // console.log(index);
           setTabIndex(index);
         }}
       >
