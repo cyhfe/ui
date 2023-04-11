@@ -1,11 +1,13 @@
-// function composeEventHandlers(...handlers) {
-//   return (...args) => {
-//     handlers.forEach((handler) => {
-//       if (typeof handler === 'function') {
-//         handler(...args);
-//       }
-//     });
-//   };
-// }
+function composeEventHandlers<EventType extends React.SyntheticEvent | Event>(
+  theirHandler: ((event: EventType) => any) | undefined,
+  ourHandler: (event: EventType) => any,
+): (event: EventType) => any {
+  return (event) => {
+    theirHandler && theirHandler(event);
+    if (!event.defaultPrevented) {
+      return ourHandler(event);
+    }
+  };
+}
 
-// export { composeEventHandlers };
+export { composeEventHandlers };
