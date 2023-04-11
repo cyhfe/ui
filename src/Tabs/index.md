@@ -1,3 +1,9 @@
 # Tabs
 
-<code src="./demo.tsx">demo</code>
+## uncontrolled
+
+<code src="./uncontrolled.tsx">uncontrolled</code>
+
+## controlled
+
+<code src="./controlled.tsx">controlled</code>

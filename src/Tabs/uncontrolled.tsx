@@ -10,7 +10,6 @@ function Demo() {
         <Tab>Two</Tab>
         <Tab>Three</Tab>
       </TabList>
-
       <TabPanels>
         <TabPanel>
           <p>one!</p>

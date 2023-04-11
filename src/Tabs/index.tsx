@@ -77,7 +77,6 @@ function TabList({ children }: PropsWithChildren) {
       className="tab-list"
       css={css`
         display: flex;
-        border: 1px solid black;
       `}
     >
       {children}
@@ -97,8 +96,16 @@ function Tab({ children }: PropsWithChildren) {
   const index = useDescendant(descendant, TabsDescendantsContext);
   const { onSelectTab } = useTabs('Tab');
   return (
-    <div className="tab" ref={handleRefSet} onClick={() => onSelectTab(index)}>
-      <div>{index}</div>
+    <div
+      className="tab"
+      ref={handleRefSet}
+      onClick={() => onSelectTab(index)}
+      css={css`
+        outline: 1px solid red;
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+      `}
+    >
       {children}
     </div>
   );
@@ -113,7 +120,14 @@ function TabPanels({ children }: PropsWithChildren) {
       items={tabPanels}
       set={setTabPanels}
     >
-      <div className="tab-panels">{children}</div>;
+      <div
+        className="tab-panels"
+        css={css`
+          outline: 1px solid red;
+        `}
+      >
+        {children}
+      </div>
     </DescendantProvider>
   );
 }
@@ -125,7 +139,7 @@ function TabPanel({ children }: PropsWithChildren) {
 
   const descendant = React.useMemo(() => {
     return {
-      element,
+      element: element,
     };
   }, [element]);
 
@@ -136,8 +150,7 @@ function TabPanel({ children }: PropsWithChildren) {
 
   return (
     <div ref={handleRefSet} hidden={hidden}>
-      <div>{index}</div>
-      <div>{children}</div>
+      {children}
     </div>
   );
 }
