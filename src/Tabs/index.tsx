@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from '@emotion/react';
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useLayoutEffect } from 'react';
 import { createContext } from '../createContext';
 import { useControlledState } from '../useControlledState';
 
@@ -10,14 +10,17 @@ import {
   Descendant,
   DescendantProvider,
   useDescendant,
+  useDescendants,
   useDescendantsInit,
 } from '../useDescendants/index';
 import { useStatefulRefValue } from '../useStatefulRefValue';
+
 interface TabsProps {
   children: React.ReactNode;
   defaultIndex?: number;
   index?: number;
   onChange?: (index: number) => void;
+  orientation?: 'horizontal' | 'vertical';
 }
 
 interface TabsContextValue {
@@ -25,6 +28,7 @@ interface TabsContextValue {
   selectedIndex: number;
   setSelectedIndex: React.Dispatch<React.SetStateAction<number>>;
   onSelectTab: (index: number) => void;
+  orientation?: 'horizontal' | 'vertical';
 }
 
 interface TabDescendant extends Descendant<HTMLElement> {
@@ -39,7 +43,13 @@ const TabPanelsDescendantsContext = createDescendantContext('TabPanels');
 
 const [TabsProvider, useTabs] = createContext<TabsContextValue>('Tabs');
 
-function Tabs({ children, defaultIndex, index, onChange }: TabsProps) {
+function Tabs({
+  children,
+  defaultIndex,
+  index,
+  onChange,
+  orientation = 'horizontal',
+}: TabsProps) {
   let { current: isControlled } = React.useRef(index !== undefined);
 
   let [tabs, setTabs] = useDescendantsInit<TabDescendant>();
@@ -64,19 +74,41 @@ function Tabs({ children, defaultIndex, index, onChange }: TabsProps) {
         selectedIndex={selectedIndex}
         setSelectedIndex={setSelectedIndex}
         onSelectTab={onSelectTab}
+        orientation={orientation}
       >
-        <div className="tabs">{children}</div>
+        <div
+          className="tabs"
+          css={css`
+            display: ${orientation === 'vertical' ? 'flex' : null};
+            p {
+              margin: 0;
+            }
+          `}
+        >
+          {children}
+        </div>
       </TabsProvider>
     </DescendantProvider>
   );
 }
 
 function TabList({ children }: PropsWithChildren) {
+  const { selectedIndex, setSelectedIndex, isControlled, orientation } =
+    useTabs('TabList');
+  const tabs = useDescendants(TabsDescendantsContext);
+  useLayoutEffect(() => {
+    if (!isControlled && tabs[selectedIndex]?.disabled) {
+      const next = tabs.findIndex((tab) => !tab.disabled);
+      setSelectedIndex(next);
+    }
+  }, [tabs, selectedIndex]);
+
   return (
     <div
       className="tab-list"
       css={css`
         display: flex;
+        flex-direction: ${orientation === 'vertical' ? 'column' : null};
       `}
     >
       {children}
@@ -133,7 +165,7 @@ function TabPanels({ children }: PropsWithChildren) {
       <div
         className="tab-panels"
         css={css`
-          padding: 0.25rem;
+          padding: 0.25rem 0.75rem;
         `}
       >
         {children}

@@ -4,9 +4,9 @@ import React from 'react';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from './';
 function Demo() {
   return (
-    <Tabs>
+    <Tabs orientation="vertical">
       <TabList>
-        <Tab disabled>One</Tab>
+        <Tab>One</Tab>
         <Tab>Two</Tab>
         <Tab>Three</Tab>
       </TabList>

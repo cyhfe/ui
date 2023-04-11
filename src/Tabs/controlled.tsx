@@ -20,7 +20,13 @@ function Demo() {
         />{' '}
         {tabIndex}
       </p>
-      <Tabs index={tabIndex} onChange={(index) => setTabIndex(index)}>
+      <Tabs
+        index={tabIndex}
+        onChange={(index) => {
+          console.log(index);
+          setTabIndex(index);
+        }}
+      >
         <TabList>
           <Tab>One</Tab>
           <Tab>Two</Tab>
