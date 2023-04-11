@@ -84,30 +84,40 @@ function TabList({ children }: PropsWithChildren) {
   );
 }
 
-function Tab({ children }: PropsWithChildren) {
-  const ref = React.useRef<HTMLDivElement | null>(null);
+interface TabProps {
+  children?: React.ReactNode;
+  disabled?: boolean;
+}
+
+function Tab({ children, disabled }: TabProps) {
+  const ref = React.useRef<HTMLButtonElement | null>(null);
   const [element, handleRefSet] = useStatefulRefValue(ref, null);
+  const { selectedIndex } = useTabs('Tab');
   const descendant = React.useMemo(() => {
     return {
       element,
-      disabled: false,
+      disabled: disabled ?? false,
     };
-  }, [element]);
+  }, [element, disabled]);
   const index = useDescendant(descendant, TabsDescendantsContext);
+  const isSelected = index === selectedIndex;
   const { onSelectTab } = useTabs('Tab');
   return (
-    <div
+    <button
+      type="button"
       className="tab"
       ref={handleRefSet}
       onClick={() => onSelectTab(index)}
+      disabled={disabled}
       css={css`
-        outline: 1px solid red;
         padding: 0.25rem 0.5rem;
-        cursor: pointer;
+        color: ${isSelected ? '#1890ff' : null};
+        background-color: ${isSelected ? '#fff' : null};
+        border: 1px solid ${isSelected ? '#1890ff' : '#d9d9d9'};
       `}
     >
       {children}
-    </div>
+    </button>
   );
 }
 
@@ -123,7 +133,7 @@ function TabPanels({ children }: PropsWithChildren) {
       <div
         className="tab-panels"
         css={css`
-          outline: 1px solid red;
+          padding: 0.25rem;
         `}
       >
         {children}
