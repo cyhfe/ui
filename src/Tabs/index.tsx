@@ -21,6 +21,7 @@ interface TabsProps {
   index?: number;
   onChange?: (index: number) => void;
   orientation?: 'horizontal' | 'vertical';
+  keyboardActivation?: 'auto' | 'manual';
 }
 
 interface TabsContextValue {
@@ -31,6 +32,7 @@ interface TabsContextValue {
   orientation?: 'horizontal' | 'vertical';
   focusIndex: number;
   setFocusIndex: React.Dispatch<React.SetStateAction<number>>;
+  keyboardActivation?: 'auto' | 'manual';
 }
 
 interface TabDescendant extends Descendant<HTMLElement> {
@@ -51,6 +53,7 @@ function Tabs({
   index,
   onChange,
   orientation = 'horizontal',
+  keyboardActivation = 'auto',
 }: TabsProps) {
   let { current: isControlled } = React.useRef(index !== undefined);
 
@@ -81,6 +84,7 @@ function Tabs({
         orientation={orientation}
         focusIndex={focusIndex}
         setFocusIndex={setFocusIndex}
+        keyboardActivation={keyboardActivation}
       >
         <div
           className="tabs"
@@ -106,23 +110,28 @@ function TabList({ children }: PropsWithChildren) {
     orientation,
     setFocusIndex,
     setSelectedIndex,
+    keyboardActivation,
+    focusIndex,
   } = useTabs('TabList');
   const tabs = useDescendants(TabsDescendantsContext);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
-    let selectableTabs = tabs.filter((tab) => !tab.disabled);
+    const selectableTabs = tabs.filter((tab) => !tab.disabled);
+    const index = keyboardActivation === 'auto' ? selectedIndex : focusIndex;
     if (!selectableTabs.length) return;
-    let currentIndex = selectableTabs.findIndex(
-      (tab) => tab.index === selectedIndex,
-    );
+    let currentIndex = selectableTabs.findIndex((tab) => tab.index === index);
 
     switch (e.key) {
       case 'ArrowLeft': {
         if (orientation === 'horizontal') {
           const prev =
             currentIndex - 1 < 0 ? selectableTabs.length - 1 : currentIndex - 1;
-          setFocusIndex(selectableTabs[prev].index);
-          onSelectTab(selectableTabs[prev].index);
+          if (keyboardActivation === 'auto') {
+            setFocusIndex(selectableTabs[prev].index);
+            onSelectTab(selectableTabs[prev].index);
+          } else {
+            setFocusIndex(selectableTabs[prev].index);
+          }
         }
         break;
       }
@@ -130,8 +139,12 @@ function TabList({ children }: PropsWithChildren) {
         if (orientation === 'horizontal') {
           const next =
             currentIndex + 1 > selectableTabs.length - 1 ? 0 : currentIndex + 1;
-          setFocusIndex(selectableTabs[next].index);
-          onSelectTab(selectableTabs[next].index);
+          if (keyboardActivation === 'auto') {
+            setFocusIndex(selectableTabs[next].index);
+            onSelectTab(selectableTabs[next].index);
+          } else {
+            setFocusIndex(selectableTabs[next].index);
+          }
         }
         break;
       }
@@ -139,8 +152,12 @@ function TabList({ children }: PropsWithChildren) {
         if (orientation === 'vertical') {
           const prev =
             currentIndex - 1 < 0 ? selectableTabs.length - 1 : currentIndex - 1;
-          setFocusIndex(selectableTabs[prev].index);
-          onSelectTab(selectableTabs[prev].index);
+          if (keyboardActivation === 'auto') {
+            setFocusIndex(selectableTabs[prev].index);
+            onSelectTab(selectableTabs[prev].index);
+          } else {
+            setFocusIndex(selectableTabs[prev].index);
+          }
         }
         break;
       }
@@ -148,10 +165,25 @@ function TabList({ children }: PropsWithChildren) {
         if (orientation === 'vertical') {
           const next =
             currentIndex + 1 > selectableTabs.length - 1 ? 0 : currentIndex + 1;
-          setFocusIndex(selectableTabs[next].index);
-          onSelectTab(selectableTabs[next].index);
+          if (keyboardActivation === 'auto') {
+            setFocusIndex(selectableTabs[next].index);
+            onSelectTab(selectableTabs[next].index);
+          } else {
+            setFocusIndex(selectableTabs[next].index);
+          }
         }
         break;
+      }
+      case ' ': {
+        if (keyboardActivation === 'manual') {
+          onSelectTab(focusIndex);
+        }
+        break;
+      }
+      case 'Enter': {
+        if (keyboardActivation === 'manual') {
+          onSelectTab(focusIndex);
+        }
       }
     }
   };
