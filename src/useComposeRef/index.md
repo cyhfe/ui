@@ -1,4 +1,4 @@
-# composeRef
+# useComposeRef
 
 ```tsx | pure
 import { useCallback } from 'react';
