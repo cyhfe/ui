@@ -15,3 +15,7 @@
 ## keyboard navigation
 
 <code src="./keyboardNavigation.tsx">keyboard navigation</code>
+
+## animation
+
+<code src="./animation.tsx">animation</code>

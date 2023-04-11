@@ -277,7 +277,11 @@ function TabPanels({ children }: PropsWithChildren) {
   );
 }
 
-function TabPanel({ children }: PropsWithChildren) {
+interface TabPanelProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+function TabPanel({ children, ...rest }: TabPanelProps) {
   const ownRef = React.useRef<HTMLDivElement | null>(null);
 
   const [element, handleRefSet] = useStatefulRefValue(ownRef, null);
@@ -294,7 +298,7 @@ function TabPanel({ children }: PropsWithChildren) {
   const hidden = index !== selectedIndex;
 
   return (
-    <div ref={handleRefSet} hidden={hidden}>
+    <div ref={handleRefSet} hidden={hidden} {...rest}>
       {children}
     </div>
   );
