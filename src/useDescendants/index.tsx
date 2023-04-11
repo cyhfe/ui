@@ -2,7 +2,7 @@ import React, { useCallback, useLayoutEffect } from 'react';
 
 type SomeElement<T> = T extends Element ? T : HTMLElement;
 
-interface Descendant<ElementType = HTMLElement> {
+export interface Descendant<ElementType = HTMLElement> {
   element: SomeElement<ElementType> | null;
   index: number;
 }
@@ -143,6 +143,7 @@ function useDescendant<DescendantType extends Descendant>(
     descendants.findIndex((item) => item.element === descendant.element);
 
   useLayoutEffect(() => {
+    // 初次渲染时，ref为null
     if (!descendant.element) forceUpdate();
 
     return registerDescendant({
