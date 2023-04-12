@@ -23,3 +23,7 @@
 ## arbitary
 
 <code src="./arbitary.tsx">arbitary</code>
+
+## dataTabs
+
+<code src="./dataTabs.tsx">dataTabs</code>
