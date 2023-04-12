@@ -15,11 +15,11 @@ import {
 } from '../useDescendants/index';
 import { useStatefulRefValue } from '../useStatefulRefValue';
 
-interface TabsProps {
+interface TabsProps extends React.ComponentPropsWithoutRef<'div'> {
   children: React.ReactNode;
   defaultIndex?: number;
   index?: number;
-  onChange?: (index: number) => void;
+  onValueChange?: (index: number) => void;
   orientation?: 'horizontal' | 'vertical';
   keyboardActivation?: 'auto' | 'manual';
 }
@@ -47,14 +47,18 @@ const TabPanelsDescendantsContext = createDescendantContext('TabPanels');
 
 const [TabsProvider, useTabs] = createContext<TabsContextValue>('Tabs');
 
-function Tabs({
-  children,
-  defaultIndex,
-  index,
-  onChange,
-  orientation = 'horizontal',
-  keyboardActivation = 'auto',
-}: TabsProps) {
+const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(function Tabs(
+  {
+    children,
+    defaultIndex,
+    index,
+    onValueChange,
+    orientation = 'horizontal',
+    keyboardActivation = 'auto',
+    ...rest
+  },
+  ref,
+) {
   let { current: isControlled } = React.useRef(index !== undefined);
 
   let [tabs, setTabs] = useDescendantsInit<TabDescendant>();
@@ -68,10 +72,10 @@ function Tabs({
 
   let onSelectTab = React.useCallback(
     (index: number) => {
-      if (onChange) onChange(index);
+      if (onValueChange) onValueChange(index);
       setSelectedIndex(index);
     },
-    [onChange, setSelectedIndex],
+    [onValueChange, setSelectedIndex],
   );
 
   return (
@@ -94,15 +98,21 @@ function Tabs({
               margin: 0;
             }
           `}
+          ref={ref}
+          {...rest}
         >
           {children}
         </div>
       </TabsProvider>
     </DescendantProvider>
   );
+});
+
+interface TabListProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
 }
 
-function TabList({ children }: PropsWithChildren) {
+function TabList({ children }: TabListProps) {
   const {
     selectedIndex,
     onSelectTab,

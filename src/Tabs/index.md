@@ -19,3 +19,7 @@
 ## animation
 
 <code src="./animation.tsx">animation</code>
+
+## arbitary
+
+<code src="./arbitary.tsx">arbitary</code>

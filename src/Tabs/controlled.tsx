@@ -22,7 +22,7 @@ function Demo() {
       </p>
       <Tabs
         index={tabIndex}
-        onChange={(index) => {
+        onValueChange={(index) => {
           // console.log(index);
           setTabIndex(index);
         }}
