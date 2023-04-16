@@ -114,7 +114,7 @@ function ToastItem({
   return (
     <div
       css={css`
-        padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+        padding: 14px;
         margin-bottom: 12px;
         background-color: #ffffff;
         display: flex;
