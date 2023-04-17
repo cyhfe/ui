@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 type PortalRef = React.ElementRef<'div'>;
 
-interface PortalProps extends React.ComponentPropsWithoutRef<'div'> {
+export interface PortalProps extends React.ComponentPropsWithoutRef<'div'> {
   container?: HTMLElement | null;
 }
 
