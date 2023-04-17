@@ -1,10 +1,9 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from '@emotion/react';
-import React, { ComponentProps, useEffect, useRef } from 'react';
+import React, { ComponentProps, PropsWithChildren, useRef } from 'react';
 import { createContext } from '../createContext';
 import Portal, { type PortalProps } from '../Portal';
-import { useOnClickOutside } from '../useClickOutside';
 
 interface DialogCOntextValue {
   isOpen: boolean;
@@ -13,7 +12,7 @@ interface DialogCOntextValue {
 
 function noop() {}
 
-const [DialogContextProvider, useDialogContext] =
+const [DialogContextProvider] =
   createContext<DialogCOntextValue>('DialogContext');
 
 interface DialogWrapperProps extends PortalProps {
@@ -27,8 +26,26 @@ function DialogWrapper({
   children,
   ...props
 }: DialogWrapperProps) {
+  const mouseDownTarget = useRef<EventTarget | null>(null);
   return (
     <Portal
+      onKeyDown={(e) => {
+        e.stopPropagation();
+        if (e.key === 'Escape') {
+          onDismiss();
+        }
+      }}
+      onMouseDown={(e) => {
+        mouseDownTarget.current = e.target;
+        console.log('mousedown', e.target);
+      }}
+      onClick={(e) => {
+        console.log('click', e.target);
+        if (mouseDownTarget.current === e.target) {
+          e.stopPropagation();
+          onDismiss();
+        }
+      }}
       css={css`
         position: fixed;
         left: 0;
@@ -46,11 +63,13 @@ function DialogWrapper({
     </Portal>
   );
 }
-
-function DialogOverlay({ children, isOpen, ...props }: DialogProps) {
+function DialogInner({ children }: PropsWithChildren) {
+  return <div>{children}</div>;
+}
+function DialogOverlay({ children, isOpen, onDismiss, ...props }: DialogProps) {
   return isOpen ? (
-    <DialogWrapper isOpen={isOpen} {...props}>
-      {children}
+    <DialogWrapper isOpen={isOpen} onDismiss={onDismiss} {...props}>
+      <DialogInner>{children}</DialogInner>
     </DialogWrapper>
   ) : null;
 }
@@ -60,24 +79,12 @@ interface DialogContentProps extends ComponentProps<'div'> {
 }
 
 function DialogContent({ children }: DialogContentProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const { onDismiss } = useDialogContext('DialogContent');
-  useOnClickOutside(contentRef, onDismiss);
-  useEffect(() => {
-    contentRef.current?.focus();
-  }, []);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+
   return (
     <div
       ref={contentRef}
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          onDismiss();
-        }
-      }}
-      onClick={(e) => {
-        console.log('click', e.target);
-      }}
+      onClick={(e) => e.stopPropagation()}
       css={css`
         width: 50vw;
         margin: 10vh auto;

@@ -13,6 +13,7 @@ const events: HandledEvents = [MOUSEDOWN, TOUCHSTART];
 export function useOnClickOutside(
   ref: React.RefObject<HTMLElement>,
   handler: Handler | null,
+  options?: AddEventListenerOptions,
 ) {
   useEffect(() => {
     if (!handler) {
@@ -28,7 +29,7 @@ export function useOnClickOutside(
     };
 
     events.forEach((event) => {
-      document.addEventListener(event, listener);
+      document.addEventListener(event, listener, options);
     });
 
     return () => {
