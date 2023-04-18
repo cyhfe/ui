@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from '@emotion/react';
-import React, { ComponentProps, PropsWithChildren, useRef } from 'react';
+import React, { ComponentProps, useRef } from 'react';
 import { createContext } from '../createContext';
 import Portal, { type PortalProps } from '../Portal';
 
@@ -63,13 +63,11 @@ function DialogWrapper({
     </Portal>
   );
 }
-function DialogInner({ children }: PropsWithChildren) {
-  return <div>{children}</div>;
-}
+
 function DialogOverlay({ children, isOpen, onDismiss, ...props }: DialogProps) {
   return isOpen ? (
     <DialogWrapper isOpen={isOpen} onDismiss={onDismiss} {...props}>
-      <DialogInner>{children}</DialogInner>
+      {children}
     </DialogWrapper>
   ) : null;
 }
