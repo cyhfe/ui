@@ -26,7 +26,6 @@ function DialogWrapper({
   children,
   ...props
 }: DialogWrapperProps) {
-  const mouseDownTarget = useRef<EventTarget | null>(null);
   return (
     <Portal
       onKeyDown={(e) => {
@@ -35,16 +34,9 @@ function DialogWrapper({
           onDismiss();
         }
       }}
-      onMouseDown={(e) => {
-        mouseDownTarget.current = e.target;
-        console.log('mousedown', e.target);
-      }}
       onClick={(e) => {
-        console.log('click', e.target);
-        if (mouseDownTarget.current === e.target) {
-          e.stopPropagation();
-          onDismiss();
-        }
+        e.stopPropagation();
+        onDismiss();
       }}
       css={css`
         position: fixed;
