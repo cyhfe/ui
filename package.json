@@ -44,6 +44,7 @@
     ]
   },
   "dependencies": {
+    "@cyhfe/state-machine": "^1.0.5",
     "@emotion/react": "^11.10.6"
   },
   "devDependencies": {
