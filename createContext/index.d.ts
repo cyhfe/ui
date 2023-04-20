@@ -5,3 +5,4 @@ declare function createContext<ContextValueType extends object | null>(rootCompo
     (callerComponentName: string) => ContextValueType
 ];
 export { createContext };
+//# sourceMappingURL=index.d.ts.map

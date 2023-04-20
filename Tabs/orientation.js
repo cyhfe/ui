@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "./";
 import { jsx as _jsx } from "react/jsx-runtime";
 import { jsxs as _jsxs } from "react/jsx-runtime";

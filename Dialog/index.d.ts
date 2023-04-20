@@ -17,3 +17,4 @@ interface DialogContentProps extends ComponentProps<'div'> {
 declare function DialogContent({ children }: DialogContentProps): import("@emotion/react/jsx-runtime").JSX.Element;
 declare function Dialog({ children, isOpen, onDismiss }: DialogProps): import("@emotion/react/jsx-runtime").JSX.Element;
 export { DialogWrapper, DialogOverlay, DialogContent, Dialog };
+//# sourceMappingURL=index.d.ts.map

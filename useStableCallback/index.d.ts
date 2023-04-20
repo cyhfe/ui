@@ -5,3 +5,4 @@
  */
 declare function useStableCallback<T extends (...args: any[]) => any>(callback: T | null | undefined): T;
 export { useStableCallback };
+//# sourceMappingURL=index.d.ts.map

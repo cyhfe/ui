@@ -4,3 +4,4 @@ export interface PortalProps extends React.ComponentPropsWithoutRef<'div'> {
 }
 declare const Portal: React.ForwardRefExoticComponent<PortalProps & React.RefAttributes<HTMLDivElement>>;
 export default Portal;
+//# sourceMappingURL=index.d.ts.map

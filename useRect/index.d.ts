@@ -14,3 +14,4 @@ interface Options {
 }
 declare const useRect: (nodeRef: React.RefObject<Element | undefined | null>, options?: Options) => DOMRect | null;
 export { useRect };
+//# sourceMappingURL=index.d.ts.map

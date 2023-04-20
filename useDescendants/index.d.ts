@@ -19,3 +19,4 @@ declare function DescendantProvider<DescendantType extends Descendant>({ Ctx, ch
 declare function useDescendant<DescendantType extends Descendant>(descendant: Omit<DescendantType, 'index'>, Ctx: React.Context<DescendantContextValue<DescendantType>>, indexProp?: number): number;
 declare function useDescendantsInit<DescendantType extends Descendant>(): [DescendantType[], React.Dispatch<React.SetStateAction<DescendantType[]>>];
 export { createDescendantContext, useDescendants, DescendantProvider, useDescendant, useDescendantsInit, };
+//# sourceMappingURL=index.d.ts.map

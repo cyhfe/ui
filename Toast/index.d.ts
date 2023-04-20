@@ -37,3 +37,4 @@ declare function ToastItem({ type, message, onExpire, duration, onRemove, autoCl
 declare function ToastContainer(): import("@emotion/react/jsx-runtime").JSX.Element;
 declare function ToastRoot({ children, max, duration, autoClose, position, }: ToastProps): import("@emotion/react/jsx-runtime").JSX.Element;
 export { ToastContainer, ToastItem, ToastRoot, useToast };
+//# sourceMappingURL=index.d.ts.map

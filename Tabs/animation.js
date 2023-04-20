@@ -1,7 +1,6 @@
 var _templateObject, _templateObject2;
 function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 import { css, keyframes } from '@emotion/react';
-import React from 'react';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "./";
 import { jsx as _jsx } from "react/jsx-runtime";
 import { jsxs as _jsxs } from "react/jsx-runtime";

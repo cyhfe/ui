@@ -23,3 +23,4 @@ interface TabPanelProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
 }
 declare function TabPanel({ children, ...rest }: TabPanelProps): import("@emotion/react/jsx-runtime").JSX.Element;
 export { Tabs, TabList, Tab, TabPanels, TabPanel };
+//# sourceMappingURL=index.d.ts.map

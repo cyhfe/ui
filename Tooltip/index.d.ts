@@ -33,3 +33,4 @@ interface TooltipProps {
 }
 declare function Tooltip({ children, label }: TooltipProps): import("@emotion/react/jsx-runtime").JSX.Element;
 export { Tooltip, machine };
+//# sourceMappingURL=index.d.ts.map
