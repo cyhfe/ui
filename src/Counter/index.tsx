@@ -4,15 +4,14 @@ import { createContext } from '../createContext/index';
 
 import { useControlledState } from '../useControlledState/index';
 
-const [CounterProvider, useCounter] =
-  createContext<ConterProviderValueType>('Counter');
-
 interface ConterProviderValueType {
   count: number;
   setCount: React.Dispatch<React.SetStateAction<number>>;
   onChange: (count: number) => void;
 }
 
+const [CounterProvider, useCounter] =
+  createContext<ConterProviderValueType>('Counter');
 interface CounterProps {
   value?: number;
   defaultValue?: number;
