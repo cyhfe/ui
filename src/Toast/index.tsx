@@ -5,23 +5,6 @@ import React from 'react';
 import { createContext } from '../createContext';
 import Portal from '../Portal';
 
-interface ToastContextValue {
-  enqueueToast: (toast: Omit<Toast, 'id'>) => void;
-  remove: (id: number) => void;
-  queue: Toast[];
-  setQueue: React.Dispatch<React.SetStateAction<Toast[]>>;
-  duration: number;
-  autoClose: boolean;
-  position: Position;
-}
-interface ToastProps {
-  children?: React.ReactNode;
-  max?: number;
-  duration?: number;
-  autoClose?: boolean;
-  position?: Position;
-}
-
 interface Toast {
   id: number;
   type: 'info' | 'success' | 'error';
@@ -41,6 +24,23 @@ export type Position =
 type PositionStyle = {
   [position in Position]: SerializedStyles;
 };
+
+interface ToastContextValue {
+  enqueueToast: (toast: Omit<Toast, 'id'>) => void;
+  remove: (id: number) => void;
+  queue: Toast[];
+  setQueue: React.Dispatch<React.SetStateAction<Toast[]>>;
+  duration: number;
+  autoClose: boolean;
+  position: Position;
+}
+interface ToastProps {
+  children?: React.ReactNode;
+  max?: number;
+  duration?: number;
+  autoClose?: boolean;
+  position?: Position;
+}
 
 interface ToastItemProps {
   type: 'info' | 'success' | 'error';

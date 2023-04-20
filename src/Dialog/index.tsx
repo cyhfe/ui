@@ -4,7 +4,11 @@ import { css } from '@emotion/react';
 import React, { ComponentProps, useRef } from 'react';
 import { createContext } from '../createContext';
 import Portal, { type PortalProps } from '../Portal';
-
+interface DialogProps {
+  children?: React.ReactNode;
+  isOpen: boolean;
+  onDismiss?: () => void;
+}
 interface DialogCOntextValue {
   isOpen: boolean;
   onDismiss: () => void;
@@ -86,12 +90,6 @@ function DialogContent({ children }: DialogContentProps) {
       {children}
     </div>
   );
-}
-
-interface DialogProps {
-  children?: React.ReactNode;
-  isOpen: boolean;
-  onDismiss?: () => void;
 }
 
 function Dialog({ children, isOpen = false, onDismiss = noop }: DialogProps) {
