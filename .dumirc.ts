@@ -2,8 +2,8 @@ import { defineConfig } from 'dumi';
 
 export default defineConfig({
   outputPath: 'docs-dist',
-  base: 'react-component-library/',
-  publicPath: '/',
+  base: '/',
+  publicPath: 'react-component-library/',
   themeConfig: {
     name: 'rcl',
   },
