@@ -1,9 +1,9 @@
 /** @jsxImportSource @emotion/react */
-import { createMachine } from '@cyhfe/state-machine/src/index';
+import { createMachine } from '@cyhfe/state-machine/dist/index';
 import { css } from '@emotion/react';
-import { useRect } from 'rcl/useRect';
 import React, { useEffect, useRef, useState } from 'react';
 import Portal from '../Portal';
+import { useRect } from '../useRect';
 
 let GlobalTooltipId: number | null = null;
 let genID = 0;
