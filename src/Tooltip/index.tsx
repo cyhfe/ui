@@ -1,19 +1,15 @@
 /** @jsxImportSource @emotion/react */
 import { createMachine } from '@cyhfe/state-machine/src/index';
 import { css } from '@emotion/react';
+import { useRect } from 'rcl/useRect';
 import React, { useEffect, useRef, useState } from 'react';
 import Portal from '../Portal';
-import { useStatefulRefValue } from '../useStatefulRefValue';
 
 let GlobalTooltipId: number | null = null;
 let genID = 0;
 
 const MOUSE_REST_TIMEOUT = 100;
 const LEAVE_TIMEOUT = 300;
-
-// function clearContextId() {
-//   GlobalTooltipId = null;
-// }
 
 enum TooltipStates {
   Idle = 'IDLE',
@@ -176,36 +172,69 @@ interface TooltipProps {
 
 interface TooltipPopupProps {
   label: string;
-  triggerElement: HTMLElement | null;
+  triggerRef: React.MutableRefObject<HTMLElement | null>;
   isVisible: boolean;
 }
 
-function TooltipPopup({ label, triggerElement, isVisible }: TooltipPopupProps) {
-  const [top, setTop] = useState(0);
-  const [left, setLeft] = useState(0);
+function TooltipPopup({ label, triggerRef, isVisible }: TooltipPopupProps) {
   const ownRef = useRef<HTMLDivElement | null>(null);
-  const [ownElement, ownRefCallback] = useStatefulRefValue(ownRef, null);
-  useEffect(() => {
-    const triggerRect = triggerElement?.getBoundingClientRect();
-    const ownRect = ownElement?.getBoundingClientRect();
 
-    if (!triggerRect || !ownRect) return;
-    const top = triggerRect.bottom;
+  const ownRect = useRect(ownRef);
+  const triggerRect = useRect(triggerRef);
+
+  function getPosition() {
+    if (!ownRect || !triggerRect)
+      return {
+        top: 0,
+        left: 0,
+      };
+    const top = triggerRect.bottom + 12;
     const left = triggerRect.left + triggerRect.width / 2 - ownRect.width / 2;
-    // console.log(triggerRect, ownRect);
-    setTop(top);
-    setLeft(left);
-  }, [ownElement, triggerElement]);
+    return {
+      top,
+      left,
+    };
+  }
+
+  const position = getPosition();
+
   return isVisible ? (
     <Portal
-      ref={ownRefCallback}
+      ref={ownRef}
       css={css`
         position: absolute;
-        top: ${top}px;
-        left: ${left}px;
+        top: ${position.top}px;
+        left: ${position.left}px;
       `}
+      onScroll={() => {
+        console.log('scroll');
+      }}
     >
-      {label}
+      <div
+        css={css`
+          padding: 0.5rem;
+          /* border: 1px solid #40a9ff; */
+          background: #40a9ff;
+          border-radius: 8px;
+          color: #fff;
+        `}
+      >
+        <div
+          css={css`
+            width: 0px;
+            height: 0px;
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #40a9ff;
+          `}
+        ></div>
+        {label}
+      </div>
     </Portal>
   ) : null;
 }
@@ -234,12 +263,10 @@ function Tooltip({ children, label }: TooltipProps) {
     send(TooltipEvents.Focus);
   };
   const onMouseEnter = () => {
-    // console.log('enter', id);
     GlobalTooltipId = id;
     send(TooltipEvents.MouseEnter);
   };
   const onMouseLeave = () => {
-    GlobalTooltipId = null;
     send(TooltipEvents.MouseLeave);
   };
   const onMouseMove = () => {
@@ -255,10 +282,7 @@ function Tooltip({ children, label }: TooltipProps) {
     onMouseMove,
   };
   const triggerRef = useRef<HTMLElement | null>(null);
-  const [triggerElement, triggerRefCallback] = useStatefulRefValue(
-    triggerRef,
-    null,
-  );
+
   const child = React.Children.only(children) as any;
 
   const [isVisible, setIsVisible] = useState(false);
@@ -271,16 +295,16 @@ function Tooltip({ children, label }: TooltipProps) {
   return (
     <>
       {React.cloneElement(child, {
-        ref: triggerRefCallback,
+        ref: triggerRef,
         ...trigger,
       })}
       <TooltipPopup
         label={label}
-        triggerElement={triggerElement}
+        triggerRef={triggerRef}
         isVisible={isVisible}
       />
     </>
   );
 }
 
-export { Tooltip };
+export { Tooltip, machine };
