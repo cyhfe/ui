@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 
+type RefCallback = (node: HTMLElement) => void;
+
 function assignRef(
   ref: React.MutableRefObject<any> | RefCallback,
   node: HTMLElement,
@@ -18,7 +20,5 @@ function useComposeRef(...refs: React.MutableRefObject<any>[]) {
     }
   }, refs);
 }
-
-type RefCallback = (node: HTMLElement) => void;
 
 export { useComposeRef };

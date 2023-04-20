@@ -9,6 +9,29 @@ import { useThrottle } from '../useThrottle';
 const WIDTH = 960;
 const HEIGHT = 540;
 
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface Stroke {
+  points: Point[];
+}
+interface CanvasRootContextValue {
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  startDrawing: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
+  endDrawing: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
+  draw: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
+  currentStroke: Point[];
+  strokes: Stroke[];
+  setCurrentStroke: React.Dispatch<React.SetStateAction<Point[]>>;
+  setStrokes: React.Dispatch<React.SetStateAction<Stroke[]>>;
+  history: number;
+  undo: () => void;
+  redo: () => void;
+  jumpTo: (to: number) => void;
+}
+
 const [CanvasRootProvider, useCanvasRoot] =
   createContext<CanvasRootContextValue>('CanvasRoot');
 
@@ -34,32 +57,8 @@ function Canvas() {
   );
 }
 
-interface CanvasRootContextValue {
-  canvasRef: React.RefObject<HTMLCanvasElement>;
-  startDrawing: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
-  endDrawing: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
-  draw: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void;
-  currentStroke: Point[];
-  strokes: Stroke[];
-  setCurrentStroke: React.Dispatch<React.SetStateAction<Point[]>>;
-  setStrokes: React.Dispatch<React.SetStateAction<Stroke[]>>;
-  history: number;
-  undo: () => void;
-  redo: () => void;
-  jumpTo: (to: number) => void;
-}
-
 interface CanvasRootProps {
   children: React.ReactNode;
-}
-
-interface Point {
-  x: number;
-  y: number;
-}
-
-interface Stroke {
-  points: Point[];
 }
 
 function CanvasRoot({ children }: CanvasRootProps) {
