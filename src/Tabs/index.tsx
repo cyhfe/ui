@@ -1,5 +1,3 @@
-/** @jsxImportSource @emotion/react */
-
 import { css } from '@emotion/react';
 import React, { PropsWithChildren, useEffect, useLayoutEffect } from 'react';
 import { createContext } from '../createContext';

@@ -1,5 +1,3 @@
-/** @jsxImportSource @emotion/react */
-
 import { css } from '@emotion/react';
 import React, { ComponentProps, useRef } from 'react';
 import { createContext } from '../createContext';

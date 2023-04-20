@@ -1,7 +1,5 @@
-/** @jsxImportSource @emotion/react */
-
 import { css, keyframes } from '@emotion/react';
-import React, { PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from './';
 
 const fadeIn = keyframes`

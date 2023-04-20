@@ -5,4 +5,5 @@ export default defineConfig({
   themeConfig: {
     name: 'rcl',
   },
+  extraBabelPresets: ['@emotion/babel-preset-css-prop'],
 });

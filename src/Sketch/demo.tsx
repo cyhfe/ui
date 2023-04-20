@@ -1,6 +1,3 @@
-/** @jsxImportSource @emotion/react */
-
-import React from 'react';
 import { Canvas, CanvasRoot, ToolBar } from '.';
 
 function Demo() {

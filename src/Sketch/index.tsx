@@ -1,5 +1,3 @@
-/** @jsxImportSource @emotion/react */
-
 import { css } from '@emotion/react';
 import { useStableCallback } from 'rcl/useStableCallback';
 import React, { useEffect, useRef, useState } from 'react';

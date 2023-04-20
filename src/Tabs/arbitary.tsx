@@ -1,5 +1,3 @@
-/** @jsxImportSource @emotion/react */
-
 import { css } from '@emotion/react';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '.';
 

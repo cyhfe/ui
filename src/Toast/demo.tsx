@@ -1,5 +1,3 @@
-/** @jsxImportSource @emotion/react */
-
 import { css } from '@emotion/react';
 import React from 'react';
 import { ToastRoot, useToast, type Position } from './index';

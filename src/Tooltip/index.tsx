@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { createMachine } from '@cyhfe/state-machine/dist/index';
 import { css } from '@emotion/react';
 import React, { useEffect, useRef, useState } from 'react';
