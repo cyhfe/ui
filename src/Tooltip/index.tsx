@@ -178,32 +178,28 @@ interface TooltipPopupProps {
 function TooltipPopup({ label, triggerRef, isVisible }: TooltipPopupProps) {
   const ownRef = useRef<HTMLDivElement | null>(null);
 
+  const [offset, setOffset] = useState({ top: 0, left: 0 });
+
   const ownRect = useRect(ownRef);
   const triggerRect = useRect(triggerRef);
 
-  function getPosition() {
-    if (!ownRect || !triggerRect)
-      return {
-        top: 0,
-        left: 0,
-      };
+  useEffect(() => {
+    if (!triggerRect || !ownRect) return;
     const top = triggerRect.bottom + 12;
     const left = triggerRect.left + triggerRect.width / 2 - ownRect.width / 2;
-    return {
+    setOffset({
       top,
       left,
-    };
-  }
-
-  const position = getPosition();
+    });
+  }, [ownRect, triggerRect]);
 
   return isVisible ? (
     <Portal
       ref={ownRef}
       css={css`
         position: absolute;
-        top: ${position.top}px;
-        left: ${position.left}px;
+        top: ${offset.top}px;
+        left: ${offset.left}px;
       `}
       onScroll={() => {
         console.log('scroll');
