@@ -1,17 +1,28 @@
 # Portal
 
-Portal 在 ui 中的弹出层经常使用，通过 z-index 来管理层叠关系。
+在不同层次的 DOM 结构中很难调整前后关系，在下面的层叠上下文 z-index 设置再高也无法盖到上层。
 
-三个盒子，其中两个被定位，并且 z-index 为 1，第一个盒子里面有一个 绝对定位的元素，它的 z-index 为 100。虽然第一个盒子的 z-index 很高，但还是出现在第二 个盒子后面，因为它的父元素，即第一个盒子形成的层叠上下文在第二个盒子后面
+将弹出层这样的结构都用`Portal`渲染到 body 下面。同层级通过 z-index 管理就简单多了。
 
 ![z-index](./z-index.png)
 
-所有层叠上下文内的元素会按照以下顺序，从后到前叠放:
-
-- 层叠上下文的根
-- z-index 为负的定位元素(及其子元素)
-- 非定位元素
-- z-index 为 auto 的定位元素(及其子元素)
-- z-index 为正的定位元素(及其子元素)
-
 <code src="./demo.tsx">demo</code>
+
+```ts | pure
+import { css } from '@emotion/react';
+import Portal from './index';
+
+const style = css`
+  color: red;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
+
+function Demo() {
+  return <Portal css={style}>portal</Portal>;
+}
+
+export default Demo;
+```
