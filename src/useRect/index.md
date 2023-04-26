@@ -1,12 +1,52 @@
 # useRect
 
-## ObserveRect
+## 在 React 中使用
 
-框架无关
-
-[https://stackblitz.com/edit/vitejs-vite-x1hsdo?file=index.html,src%2Fmain.ts,src%2FobserveRect.ts&terminal=dev](https://stackblitz.com/edit/vitejs-vite-x1hsdo?file=index.html,src%2Fmain.ts,src%2FobserveRect.ts&terminal=dev)
+监控 DOM 位置变化
 
 <code src="./demo.tsx"></code>
+
+```tsx | pure
+export default function Example() {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [observe, setObserve] = React.useState(false);
+
+  const rect = useRect(ref, {
+    observe,
+    onChange: (arg) => {
+      console.log(arg, 'onchange');
+    },
+  });
+
+  return (
+    <div>
+      <button type="button" onClick={() => setObserve(!observe)}>
+        {observe ? 'Stop' : 'Start'} observing
+      </button>
+      <pre>{JSON.stringify(rect, null, 2)}</pre>
+      <div
+        // and then place the ref
+        ref={ref}
+        contentEditable
+        style={{
+          display: 'inline-block',
+          padding: 10,
+          border: 'solid 1px',
+        }}
+        dangerouslySetInnerHTML={{
+          __html: 'Edit this to change the size!',
+        }}
+      />
+    </div>
+  );
+}
+```
+
+## ObserveRect
+
+框架无关，监控 DOM 元素位置变化
+
+[https://stackblitz.com/edit/vitejs-vite-x1hsdo?file=index.html,src%2Fmain.ts,src%2FobserveRect.ts&terminal=dev](https://stackblitz.com/edit/vitejs-vite-x1hsdo?file=index.html,src%2Fmain.ts,src%2FobserveRect.ts&terminal=dev)
 
 ## 核心思路
 
@@ -113,7 +153,7 @@ function observeRect(dom: HTMLElement, onChange: (rect: DOMRect) => void) {
 export default observeRect;
 ```
 
-## 在 React 中使用: useRect
+## 自定义 hook：useRect
 
 ```tsx | pure
 import { useStableCallback } from 'rcl/useStableCallback';

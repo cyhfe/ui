@@ -2,7 +2,7 @@ import { css } from '@emotion/react';
 import { useStableCallback } from 'rcl/useStableCallback';
 import React, { useEffect, useRef, useState } from 'react';
 import { createContext } from '../createContext';
-import { useThrottle } from '../useThrottle';
+import { useThrottle } from '../useDebounce';
 
 const WIDTH = 960;
 const HEIGHT = 540;
