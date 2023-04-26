@@ -11,7 +11,6 @@
   "scripts": {
     "build": "father build",
     "build:watch": "father dev",
-    "deploy": "gh-pages -d docs-dist",
     "dev": "dumi dev",
     "docs:build": "dumi build",
     "doctor": "father doctor",
@@ -45,7 +44,7 @@
     ]
   },
   "dependencies": {
-    "@cyhfe/state-machine": "^1.0.5",
+    "@cyhfe/state-machine": "^1.0.6",
     "@emotion/babel-preset-css-prop": "^11.10.0",
     "@emotion/react": "^11.10.6"
   },
@@ -55,10 +54,9 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@umijs/lint": "^4.0.0",
-    "dumi": "^2.0.2",
+    "dumi": "^2.1.22",
     "eslint": "^8.23.0",
     "father": "^4.1.0",
-    "gh-pages": "^5.0.0",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
