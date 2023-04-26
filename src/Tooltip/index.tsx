@@ -192,7 +192,7 @@ function TooltipPopup({ label, triggerRef, isVisible }: TooltipPopupProps) {
   });
 
   function getPisition(triggerRect: DOMRect | null, ownRect: DOMRect | null) {
-    console.log('get position');
+    // console.log('get position');
     if (!triggerRect || !ownRect) return css({ left: 0, top: 0 });
     const x = triggerRect.left + triggerRect.width / 2 - ownRect.width / 2;
     const y = triggerRect.bottom + 15;
