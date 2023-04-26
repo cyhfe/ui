@@ -1,33 +1,17 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import observeRect from './observeRect';
+import React from 'react';
+
+import useRect from '.';
 
 export default function Example() {
-  const [observe, setObserve] = React.useState(true);
-  // your own ref
   const ref = React.useRef<HTMLDivElement>(null);
+  const [observe, setObserve] = React.useState(false);
 
-  const [rect, setRect] = useState<DOMRect | null>(null);
-  const [element, setElement] = useState(ref.current);
-
-  useEffect(() => {
-    setElement(ref.current);
-    return () => {
-      setElement(null);
-    };
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!element || !observe) return;
-    console.log('observe');
-    let observal = observeRect(element, (rect) => {
-      setRect(rect);
-    });
-    observal.observe();
-    return () => {
-      console.log('un');
-      observal.unobserve();
-    };
-  }, [element, observe]);
+  const rect = useRect(ref, {
+    observe,
+    onChange: (arg) => {
+      console.log(arg, 'onchange');
+    },
+  });
 
   return (
     <div>
