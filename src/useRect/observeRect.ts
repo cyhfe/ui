@@ -10,15 +10,23 @@ const rectKeys: (keyof DOMRect)[] = [
   'y',
 ];
 
-let rid: number | null = null;
-
 interface RectProps {
   rect: DOMRect;
   callbacks: ((rect: DOMRect) => void)[];
 }
 
+let rid: number | null = null;
+const observable = new Map<HTMLElement, RectProps>();
+
 function hasChanged(prev: DOMRect, curr: DOMRect) {
-  return rectKeys.some((key) => prev[key] !== curr[key]);
+  let changed = false;
+  rectKeys.forEach((key) => {
+    if (prev[key] !== curr[key]) {
+      changed = true;
+      return;
+    }
+  });
+  return changed;
 }
 
 function run(observable: Map<HTMLElement, RectProps>) {
@@ -40,7 +48,6 @@ function run(observable: Map<HTMLElement, RectProps>) {
 }
 
 function observeRect(dom: HTMLElement, onChange: (rect: DOMRect) => void) {
-  const observable = new Map<HTMLElement, RectProps>();
   function observe() {
     if (!observable.has(dom)) {
       const rect = dom.getBoundingClientRect();
@@ -53,7 +60,7 @@ function observeRect(dom: HTMLElement, onChange: (rect: DOMRect) => void) {
       currentrectProps.callbacks.push(onChange);
     }
 
-    if (observable.size === 0) {
+    if (observable.size > 0 && rid === null) {
       run(observable);
     }
 
