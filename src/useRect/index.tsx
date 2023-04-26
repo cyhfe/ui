@@ -1,5 +1,4 @@
-import { useStableCallback } from 'rcl/useStableCallback';
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import observeRect from './observeRect';
 
 function useRect(
@@ -7,42 +6,61 @@ function useRect(
   options: {
     observe?: boolean;
     onChange?: (rect: DOMRect) => void;
-  } = { observe: true },
+  } = {},
 ) {
-  const { observe, onChange } = options;
-
-  const stableOnchange = useStableCallback(onChange);
-
+  const { observe = true, onChange = () => {} } = options;
   const [rect, setRect] = React.useState<DOMRect | null>(null);
-  const [element, setElement] = React.useState(ref.current);
-  const initialRectIsSet = React.useRef(false);
+  const [element, setElement] = React.useState<HTMLElement | null>(ref.current);
 
-  React.useEffect(() => {
-    setElement(ref.current);
-    return () => {
-      setElement(null);
-    };
-  }, [ref]);
+  const savedOnchange = React.useRef(onChange);
+  const savedElement = React.useRef(ref.current);
+  const initialRectSet = React.useRef(false);
 
-  React.useLayoutEffect(() => {
-    if (!element) return;
-    if (!observe) {
-      if (!initialRectIsSet.current) {
-        setRect(element.getBoundingClientRect());
-        stableOnchange(element.getBoundingClientRect());
-      }
-      return;
+  // 更新 onChange, savedElement
+  useLayoutEffect(() => {
+    savedElement.current = ref.current;
+    savedOnchange.current = onChange;
+  });
+
+  // 更新 element
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => {
+    if (element !== savedElement.current) {
+      // console.log('更新 element', element, savedElement.current);
+      setElement(savedElement.current);
     }
-    let observal = observeRect(element, (rect) => {
-      setRect(rect);
-      stableOnchange(rect);
-    });
+  });
 
-    observal.observe();
+  // 初次渲染更新rect
+  useLayoutEffect(() => {
+    if (!initialRectSet.current) {
+      if (!element) {
+        return;
+      }
+
+      // console.log(element, element.getBoundingClientRect(), '初次渲染更新rect');
+
+      const nextRect = element.getBoundingClientRect();
+      setRect(nextRect);
+      savedOnchange.current(nextRect);
+      initialRectSet.current = true;
+    }
+  }, [element]);
+
+  // 订阅及取消订阅
+  useLayoutEffect(() => {
+    if (!observe || !element) return;
+    const observor = observeRect(element, (rect) => {
+      savedOnchange.current(rect);
+      setRect(rect);
+    });
+    observor.observe();
     return () => {
-      observal.unobserve();
+      observor.unobserve();
     };
-  }, [element, observe, stableOnchange]);
+  }, [element, observe]);
+
   return rect;
 }
 

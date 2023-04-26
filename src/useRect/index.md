@@ -6,7 +6,7 @@
 
 <code src="./demo.tsx"></code>
 
-```tsx | pure
+```ts | pure
 export default function Example() {
   const ref = React.useRef<HTMLDivElement>(null);
   const [observe, setObserve] = React.useState(false);
@@ -66,7 +66,7 @@ export default function Example() {
 const observable = new Map<HTMLElement, RectProps>();
 ```
 
-```tsx | pure
+```ts | pure
 // DOMRect属性不可枚举，Object.keys拿不到
 const rectKeys: (keyof DOMRect)[] = [
   'bottom',
@@ -155,9 +155,8 @@ export default observeRect;
 
 ## 自定义 hook：useRect
 
-```tsx | pure
-import { useStableCallback } from 'rcl/useStableCallback';
-import React from 'react';
+```ts | pure
+import React, { useLayoutEffect } from 'react';
 import observeRect from './observeRect';
 
 function useRect(
@@ -165,51 +164,61 @@ function useRect(
   options: {
     observe?: boolean;
     onChange?: (rect: DOMRect) => void;
-  } = { observe: true },
+  } = {},
 ) {
-  const { observe, onChange } = options;
-
-  // onChange作为依赖，详见博客
-  const stableOnchange = useStableCallback(onChange);
-
+  const { observe = true, onChange = () => {} } = options;
   const [rect, setRect] = React.useState<DOMRect | null>(null);
+  const [element, setElement] = React.useState<HTMLElement | null>(ref.current);
 
-  // ref不触发重新渲染，effect在重新渲染之后才执行: 详见博客
-  // 将element作为状态
-  const [element, setElement] = React.useState(ref.current);
+  const savedOnchange = React.useRef(onChange);
+  const savedElement = React.useRef(ref.current);
+  const initialRectSet = React.useRef(false);
 
-  // 初始化不订阅的时候，我们要手动设置element的rect
-  const initialRectIsSet = React.useRef(false);
+  // 更新 onChange, savedElement
+  useLayoutEffect(() => {
+    savedElement.current = ref.current;
+    savedOnchange.current = onChange;
+  });
 
-  React.useEffect(() => {
-    setElement(ref.current);
-    return () => {
-      setElement(null);
-    };
-  }, [ref]);
+  // 更新 element
 
-  // useLayoutEffect避免屏幕闪烁
-  React.useLayoutEffect(() => {
-    if (!element) return;
-
-    //初始化不订阅的时候，我们要手动设置element的rect
-    if (!observe) {
-      if (!initialRectIsSet.current) {
-        setRect(element.getBoundingClientRect());
-        stableOnchange(element.getBoundingClientRect());
-      }
-      return;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => {
+    if (element !== savedElement.current) {
+      // console.log('更新 element', element, savedElement.current);
+      setElement(savedElement.current);
     }
-    let observal = observeRect(element, (rect) => {
-      setRect(rect);
-      stableOnchange(rect);
-    });
+  });
 
-    observal.observe();
+  // 初次渲染更新rect
+  useLayoutEffect(() => {
+    if (!initialRectSet.current) {
+      if (!element) {
+        return;
+      }
+
+      // console.log(element, element.getBoundingClientRect(), '初次渲染更新rect');
+
+      const nextRect = element.getBoundingClientRect();
+      setRect(nextRect);
+      savedOnchange.current(nextRect);
+      initialRectSet.current = true;
+    }
+  }, [element]);
+
+  // 订阅及取消订阅
+  useLayoutEffect(() => {
+    if (!observe || !element) return;
+    const observor = observeRect(element, (rect) => {
+      savedOnchange.current(rect);
+      setRect(rect);
+    });
+    observor.observe();
     return () => {
-      observal.unobserve();
+      observor.unobserve();
     };
-  }, [element, observe, stableOnchange]);
+  }, [element, observe]);
+
   return rect;
 }
 

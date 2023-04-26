@@ -178,57 +178,63 @@ interface TooltipPopupProps {
 function TooltipPopup({ label, triggerRef, isVisible }: TooltipPopupProps) {
   const ownRef = useRef<HTMLDivElement | null>(null);
 
-  const [offset, setOffset] = useState({ top: 0, left: 0 });
+  const ownRect = useRect(ownRef, {
+    observe: isVisible,
+    // onChange: (r) => {
+    //   console.log('ownRect', r);
+    // },
+  });
+  const triggerRect = useRect(triggerRef, {
+    observe: isVisible,
+    // onChange: (r) => {
+    //   console.log('triggerRect', r);
+    // },
+  });
 
-  const ownRect = useRect(ownRef);
-  const triggerRect = useRect(triggerRef);
-
-  useEffect(() => {
-    if (!triggerRect || !ownRect) return;
-    const top = triggerRect.bottom + 12;
-    const left = triggerRect.left + triggerRect.width / 2 - ownRect.width / 2;
-    setOffset({
-      top,
-      left,
-    });
-  }, [ownRect, triggerRect]);
+  function getPisition(triggerRect: DOMRect | null, ownRect: DOMRect | null) {
+    console.log('get position');
+    if (!triggerRect || !ownRect) return css({ left: 0, top: 0 });
+    const x = triggerRect.left + triggerRect.width / 2 - ownRect.width / 2;
+    const y = triggerRect.bottom + 15;
+    return css({ left: x + 'px', top: y + 'px' });
+  }
 
   return isVisible ? (
-    <Portal
-      ref={ownRef}
-      css={css`
-        position: absolute;
-        top: ${offset.top}px;
-        left: ${offset.left}px;
-      `}
-      onScroll={() => {
-        console.log('scroll');
-      }}
-    >
+    <Portal>
       <div
-        css={css`
-          padding: 0.5rem;
-          /* border: 1px solid #40a9ff; */
-          background: #40a9ff;
-          border-radius: 8px;
-          color: #fff;
-        `}
+        ref={ownRef}
+        css={[
+          css`
+            position: fixed;
+            z-index: 99;
+          `,
+          getPisition(triggerRect, ownRect),
+        ]}
       >
         <div
           css={css`
-            width: 0px;
-            height: 0px;
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-bottom: 8px solid #40a9ff;
+            padding: 0.5rem;
+            background: #40a9ff;
+            border-radius: 8px;
+            color: #fff;
           `}
-        ></div>
-        {label}
+        >
+          <div
+            css={css`
+              width: 0px;
+              height: 0px;
+              position: absolute;
+              top: -8px;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 0;
+              border-left: 8px solid transparent;
+              border-right: 8px solid transparent;
+              border-bottom: 8px solid #40a9ff;
+            `}
+          ></div>
+          {label}
+        </div>
       </div>
     </Portal>
   ) : null;
