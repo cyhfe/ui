@@ -1,45 +1,17 @@
-# createContext
+# callAll
 
-```tsx | pure
-import React, { PropsWithChildren } from 'react';
+## 问题
 
-type ContextProvider<T> = React.FC<PropsWithChildren<T>>;
+封装的组件有我们预设的事件，用户没办法再绑定事件
 
-function createContext<ContextValueType extends object | null>(
-  rootComponentName: string,
-  defaultContextValue?: ContextValueType,
-): [
-  ContextProvider<ContextValueType>,
-  (callerComponentName: string) => ContextValueType,
-] {
-  const Ctx = React.createContext(defaultContextValue);
+## 解决
 
-  function Provider(props: PropsWithChildren<ContextValueType>) {
-    const { children, ...context } = props;
+闭包保存函数集合，返回一个函数调用所有函数
 
-    const deps = Object.values(context);
-
-    const value = React.useMemo(() => {
-      return context;
-    }, deps) as ContextValueType;
-
-    return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
-  }
-
-  function useContext(callerComponentName: string) {
-    const context = React.useContext(Ctx);
-    if (context) return context;
-    if (defaultContextValue) return defaultContextValue;
-    throw Error(
-      `${callerComponentName} must be rendered inside of a ${rootComponentName} component.`,
-    );
-  }
-
-  Ctx.displayName = `${rootComponentName}Context`;
-  Provider.displayName = `${rootComponentName}Provider`;
-
-  return [Provider, useContext];
+```jsx | pure
+function callAll(...fns) {
+  return function (...args) {
+    fns.forEach((fn) => fn?.(...args));
+  };
 }
-
-export { createContext };
 ```

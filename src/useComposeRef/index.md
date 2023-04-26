@@ -1,5 +1,8 @@
 # useComposeRef
 
+DOM 的 ref 属性可以接受一个 callback((node) => void)
+我们可以手动挂载 ref
+
 ```tsx | pure
 import { useCallback } from 'react';
 

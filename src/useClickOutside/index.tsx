@@ -37,5 +37,5 @@ export function useOnClickOutside(
         document.removeEventListener(event, listener);
       });
     };
-  }, [!handler]);
+  }, [handler, options, ref]);
 }

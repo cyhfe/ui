@@ -18,6 +18,7 @@ function useComposeRef(...refs: React.MutableRefObject<any>[]) {
     for (let ref of refs) {
       assignRef(ref, node);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, refs);
 }
 
