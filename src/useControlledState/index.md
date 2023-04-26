@@ -1,5 +1,9 @@
 # useControlledState
 
+根据 value 判断状态是否受控
+如果非受控返回自身维护的状态和 setter
+如果是受控，返回 value 和空函数 setter，状态和 setter 由外部组件 callback 提供
+
 ```tsx | pure
 import React, { useCallback } from 'react';
 
