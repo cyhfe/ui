@@ -37,10 +37,9 @@ function useRect(
       setRect(rect);
       stableOnchange(rect);
     });
-    console.log(1);
+
     observal.observe();
     return () => {
-      console.log(2);
       observal.unobserve();
     };
   }, [element, observe, stableOnchange]);

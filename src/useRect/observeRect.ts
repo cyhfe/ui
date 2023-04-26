@@ -30,7 +30,6 @@ function hasChanged(prev: DOMRect, curr: DOMRect) {
 }
 
 function run(observable: Map<HTMLElement, RectProps>) {
-  console.log('run');
   observable.forEach((prevRectProps, element) => {
     const currRect = element.getBoundingClientRect();
     const changed = hasChanged(prevRectProps.rect, currRect);
