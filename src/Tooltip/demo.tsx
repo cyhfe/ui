@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { machine, Tooltip } from '.';
 function Example() {
+  // 1
   const [state, setState] = useState(machine.state);
 
   useEffect(() => {
