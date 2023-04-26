@@ -9,7 +9,7 @@ function Example() {
     return machine.subscribe(() => {
       setState(machine.state);
     });
-  }, [machine]);
+  }, []);
 
   return (
     <div>

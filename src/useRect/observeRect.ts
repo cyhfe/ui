@@ -30,6 +30,7 @@ function hasChanged(prev: DOMRect, curr: DOMRect) {
 }
 
 function run(observable: Map<HTMLElement, RectProps>) {
+  console.log('run');
   observable.forEach((prevRectProps, element) => {
     const currRect = element.getBoundingClientRect();
     const changed = hasChanged(prevRectProps.rect, currRect);
@@ -55,25 +56,29 @@ function observeRect(dom: HTMLElement, onChange: (rect: DOMRect) => void) {
         callbacks: [onChange],
         rect,
       });
+      onChange(rect);
     } else {
       const currentrectProps = observable.get(dom)!;
       currentrectProps.callbacks.push(onChange);
     }
 
     if (observable.size > 0 && rid === null) {
-      run(observable);
+      rid = requestAnimationFrame(() => {
+        run(observable);
+      });
     }
-
-    return function unobserve() {
-      observable.delete(dom);
-      if (observable.size === 0 && rid) {
-        cancelAnimationFrame(rid);
-      }
-    };
+  }
+  function unobserve() {
+    observable.delete(dom);
+    if (observable.size === 0 && rid !== null) {
+      cancelAnimationFrame(rid);
+      rid = null;
+    }
   }
   return {
     observable,
     observe,
+    unobserve,
   };
 }
 
