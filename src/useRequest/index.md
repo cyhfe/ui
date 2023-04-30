@@ -3,6 +3,7 @@
 请求通用逻辑: 发送请求时展示 `loading`, `error`,拿到响应后更新 state
 
 ```tsx | pure
+import { useSafeDispatch } from 'rcl/useSafeDispatch';
 import React from 'react';
 
 type Status = 'pendding' | 'idle';
@@ -60,18 +61,20 @@ async function useRequest(
   },
 ) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
+  const safeDispatch = useSafeDispatch(dispatch);
+
   const { status, data, error } = state;
 
   function run(promise: Promise<any>) {
     promise.then(
       (data: any) => {
-        dispatch({
+        safeDispatch({
           type: 'resolve',
           payload: data,
         });
       },
       (error: any) => {
-        dispatch({
+        safeDispatch({
           type: 'reject',
           payload: error,
         });
