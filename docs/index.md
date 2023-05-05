@@ -1,22 +1,21 @@
 ---
 hero:
   title: library
-  description: A react library developed with dumi
+  description: A low level react component library inspired by reach & Radix UI
   actions:
-    - text: Hello
-      link: /
-    - text: World
-      link: /
+    - text: get started
+      link: /components/call-all
+
 features:
-  - title: Hello
+  - title: easy to extend
     emoji: 💎
-    description: Put hello description here
-  - title: World
+    description: compound component
+  - title: learn
     emoji: 🌈
-    description: Put world description here
+    description: this lib is build for learn react best practice
   - title: '!'
     emoji: 🚀
-    description: Put ! description here
+    description: :)
 ---
 
 rcl
