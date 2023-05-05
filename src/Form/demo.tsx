@@ -1,5 +1,5 @@
+import React from 'react';
 import * as Form from '.';
-
 const Demo = () => {
   // const [loading, setLoading] = React.useState(false);
   // const [serverErrors, setServerErrors] = React.useState<{
@@ -8,9 +8,9 @@ const Demo = () => {
   // }>({});
 
   return (
-    <>
+    <React.Fragment>
       <Form.Root>123</Form.Root>
-    </>
+    </React.Fragment>
   );
 
   // return (
