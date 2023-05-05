@@ -2,16 +2,25 @@
 
 ## 问题
 
-封装的组件有我们预设的事件，用户没办法再绑定事件
+组件需要绑定多个事件(组件预设,用户定义)
 
 ## 解决
 
-闭包保存函数集合，返回一个函数调用所有函数
+闭包保存函数集合，返回一个函数调用所有 callback
 
-```jsx | pure
-function callAll(...fns) {
-  return function (...args) {
-    fns.forEach((fn) => fn?.(...args));
+```tsx | pure
+function callAll(...fns: ((args: any) => void)[]) {
+  return function (...args: any) {
+    const _args = [...args];
+    fns.forEach((fn) => fn(_args));
   };
 }
+
+const handler1 = (...args) => console.log(...args);
+const handler2 = (...args) => console.log(...args);
+
+const handler = callAll(handler1, handler2);
+handler(1, 2, 3);
+
+export { callAll };
 ```

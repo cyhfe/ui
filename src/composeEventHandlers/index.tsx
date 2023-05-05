@@ -1,13 +1,8 @@
-function composeEventHandlers<EventType extends React.SyntheticEvent | Event>(
-  theirHandler: ((event: EventType) => any) | undefined,
-  ourHandler: (event: EventType) => any,
-): (event: EventType) => any {
-  return (event) => {
-    theirHandler && theirHandler(event);
-    if (!event.defaultPrevented) {
-      return ourHandler(event);
-    }
+function callAll(...fns: ((args: any) => void)[]) {
+  return function (...args: any) {
+    const _args = [...args];
+    fns.forEach((fn) => fn(_args));
   };
 }
 
-export { composeEventHandlers };
+export { callAll };
