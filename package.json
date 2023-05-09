@@ -46,7 +46,8 @@
   "dependencies": {
     "@cyhfe/state-machine": "^1.0.6",
     "@emotion/babel-preset-css-prop": "^11.10.0",
-    "@emotion/react": "^11.10.6"
+    "@emotion/react": "^11.10.6",
+    "@react-spring/web": "^9.7.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
