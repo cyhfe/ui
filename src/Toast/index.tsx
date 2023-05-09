@@ -83,11 +83,11 @@ class Timer {
     if (!this.timerId || !this.startTime) return;
     this.remaining = this.remaining - (Date.now() - this.startTime);
     clearTimeout(this.timerId);
-    this.timerId = null;
+    // this.timerId = null;
   }
   resume() {
     if (!this.timerId) return;
-    clearTimeout(this.timerId);
+    // clearTimeout(this.timerId);
     this.startTime = Date.now();
     this.timerId = setTimeout(this.handler, this.remaining);
   }
@@ -116,12 +116,12 @@ function ToastItem({
 
   const styles = useSpring({
     ref: apiRef,
-    from: { width: '100%', borderBottomRightRdius: '100%' },
+    from: { width: '100%', 'border-bottom-right-radius': '0' },
     to: {
       width: '0',
     },
     config: {
-      duration: 4000,
+      duration: duration,
     },
   });
 
@@ -155,9 +155,11 @@ function ToastItem({
       `}
       onMouseEnter={() => {
         autoClose && timerRef.current.pause();
+        apiRef.pause();
       }}
       onMouseLeave={() => {
         autoClose && timerRef.current.resume();
+        apiRef.resume();
       }}
     >
       {message && message}
