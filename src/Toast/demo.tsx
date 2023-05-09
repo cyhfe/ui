@@ -64,7 +64,7 @@ function Example() {
 }
 
 function App() {
-  const [autoClose, setAutoClose] = React.useState(false);
+  const [autoClose, setAutoClose] = React.useState(true);
   const [max, setMax] = React.useState<string | undefined>(undefined);
   const [duration, setDuration] = React.useState(3000);
   const [position, setPosition] = React.useState<Position>('top-right');
@@ -87,6 +87,8 @@ function App() {
           <label htmlFor="autoClose">autoClose: </label>
           <input
             type="checkbox"
+            defaultChecked={autoClose}
+            value={autoClose ? 1 : 0}
             onChange={(e) => setAutoClose(e.target.checked)}
             id="autoClose"
           />
