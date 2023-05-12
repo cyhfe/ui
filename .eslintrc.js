@@ -1,5 +1,6 @@
 module.exports = {
   rules: {
+    'react/button-has-type': 'off',
     'no-unused-expressions': 'off',
     '@typescript-eslint/no-unused-expressions': [
       'error',

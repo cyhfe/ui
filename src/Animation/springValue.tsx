@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { animated, useSpring } from '@react-spring/web';
-import { useInterval } from 'rcl/useInterval';
 import { useState } from 'react';
+import { useInterval } from '../useInterval';
 
 const containerStyle = css`
   width: 200px;
@@ -41,15 +41,31 @@ const textStyle = css`
 export default function Demo() {
   const [open, setOpen] = useState(false);
   const styles = useSpring({ width: open ? 200 : 0 });
+  const [start, setStart] = useState(false);
 
   useInterval(() => {
-    setOpen((b) => !b);
-  }, 1500);
+    start && setOpen((b) => !b);
+  }, 1000);
 
   return (
     <div>
-      <button type="button">stop</button>
-      <div css={[containerStyle]}>
+      <button
+        css={css`
+          margin-bottom: 2rem;
+        `}
+        type="button"
+        onClick={() => {
+          setStart((b) => !b);
+        }}
+      >
+        {start ? 'STOP' : 'AUTO PLAY'}
+      </button>
+      <div
+        css={[containerStyle]}
+        onClick={() => {
+          setOpen((b) => !b);
+        }}
+      >
         <div css={mainStyle}>
           <animated.div css={animatedStyle} style={styles}></animated.div>
           <animated.div css={textStyle}>

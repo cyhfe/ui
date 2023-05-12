@@ -2,4 +2,12 @@
 
 ## spring value
 
-<code src="./demo.tsx"></code>
+`click | autoplay`
+
+<code src="./springValue.tsx"></code>
+
+## transition
+
+`click | autoplay`
+
+<code src="./transition.tsx"></code>
