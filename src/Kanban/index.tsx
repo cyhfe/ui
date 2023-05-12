@@ -6,8 +6,16 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useImmer } from 'use-immer';
 import { Col, Grid, Row } from '../Grid';
-import { ItemTypes } from './ItemTypes';
-import { AddItemProps, CardProps, ColumnProps, DragItem, List } from './types';
+
+import {
+  AddItemProps,
+  CardDragItem,
+  CardProps,
+  ColumnDragItem,
+  ColumnProps,
+  ItemTypes,
+  List,
+} from './types';
 
 let LIST_ID = 4;
 let ITEM_ID = 6;
@@ -88,7 +96,7 @@ function Card({ children, itemId, listId, moveCard, ...props }: CardProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ handlerId }, drop] = useDrop<
-    DragItem,
+    CardDragItem,
     void,
     { handlerId: Identifier | null }
   >({
@@ -98,12 +106,13 @@ function Card({ children, itemId, listId, moveCard, ...props }: CardProps) {
         handlerId: monitor.getHandlerId(),
       };
     },
-    drop(item: DragItem) {
+    drop(item: CardDragItem) {
       if (!ref.current) return;
       if (item.itemId === itemId) return;
       moveCard(item, {
         itemId,
         listId,
+        type: ItemTypes.CARD,
       });
     },
   });
@@ -114,6 +123,7 @@ function Card({ children, itemId, listId, moveCard, ...props }: CardProps) {
       return {
         itemId,
         listId,
+        type: ItemTypes.CARD,
       };
     },
     collect: (monitor) => ({
@@ -137,24 +147,40 @@ function Card({ children, itemId, listId, moveCard, ...props }: CardProps) {
 
 function Column({ list, moveCard, setData }: ColumnProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [, drop] = useDrop(() => ({
-    accept: ItemTypes.CARD,
 
-    drop(item: DragItem, monitor) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ItemTypes.COLUMN,
+    item: () => {
+      return {
+        listId: list.id,
+        type: ItemTypes.COLUMN,
+      };
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
+
+  const [, drop] = useDrop(() => ({
+    accept: [ItemTypes.CARD, ItemTypes.COLUMN],
+    drop(item: CardDragItem | ColumnDragItem, monitor) {
       const didDrop = monitor.didDrop();
       if (didDrop) return;
-      setData((draft) => {
-        const dragList = draft.find((l) => l.id === item.listId)?.items;
-        const dragIndex = dragList?.findIndex((i) => i.id === item.itemId);
-        //@ts-ignore
-        const [dragItem] = dragList?.splice(dragIndex, 1);
-        const dropList = draft.find((l) => l.id === list.id)?.items;
-        dragItem && dropList?.push(dragItem);
-      });
+      if (item.type === ItemTypes.CARD) {
+        setData((draft) => {
+          const dragList = draft.find((l) => l.id === item.listId)?.items;
+          const dragIndex = dragList?.findIndex((i) => i.id === item.itemId);
+          //@ts-ignore
+          const [dragItem] = dragList?.splice(dragIndex, 1);
+          const dropList = draft.find((l) => l.id === list.id)?.items;
+          dragItem && dropList?.push(dragItem);
+        });
+      }
     },
   }));
 
-  drop(ref);
+  drag(drop(ref));
 
   return (
     <Col
@@ -203,7 +229,7 @@ function Column({ list, moveCard, setData }: ColumnProps) {
   );
 }
 
-function swap(lists: List[], drag: DragItem, drop: DragItem) {
+function swap(lists: List[], drag: CardDragItem, drop: CardDragItem) {
   const isSameList = drag.listId === drop.listId;
 
   if (isSameList) {
@@ -245,7 +271,7 @@ function Kanban() {
     setTitle('');
   }
 
-  function moveCard(drag: DragItem, drop: DragItem) {
+  function moveCard(drag: CardDragItem, drop: CardDragItem) {
     setData((draft) => {
       swap(draft, drag, drop);
     });
