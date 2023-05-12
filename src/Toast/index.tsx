@@ -5,7 +5,7 @@ import {
   useSpringRef,
   useTransition,
 } from '@react-spring/web';
-import React, { useRef } from 'react';
+import React, { useEffect } from 'react';
 import { createContext } from '../createContext';
 import Portal from '../Portal';
 
@@ -207,8 +207,6 @@ function ToastContainer() {
     position,
   } = useToast('ToastContainer');
 
-  const animatedRef = useRef<HTMLDivElement | null>(null);
-
   const baseStyle = css`
     position: fixed;
     width: 200px;
@@ -244,20 +242,26 @@ function ToastContainer() {
     `,
   };
 
+  const animatedRef = useSpringRef();
   const transitions = useTransition(queue, {
+    ref: animatedRef,
     from: {
-      x: position === 'top-right' ? 216 : 0,
-      opacity: 0.8,
+      transform: `translate3d(100%, 0, 0)`,
+      opacity: 0,
     },
     enter: {
-      x: 0,
+      transform: `translate3d(0%, 0, 0)`,
       opacity: 1,
     },
     leave: {
-      x: position === 'top-right' ? 216 : 0,
-      opacity: 0.8,
+      transform: `translate3d(100%, 0, 0)`,
+      opacity: 0,
     },
   });
+
+  useEffect(() => {
+    animatedRef.start();
+  }, [animatedRef, queue]);
 
   return (
     <Portal
@@ -268,7 +272,7 @@ function ToastContainer() {
         (styles, { type, message, id, autoClose = defaultAutoClose, node }) => {
           return (
             <>
-              <animated.div style={styles} ref={animatedRef}>
+              <animated.div style={styles}>
                 <ToastItem
                   type={type}
                   key={id}
