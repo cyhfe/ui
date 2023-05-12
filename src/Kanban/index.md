@@ -25,3 +25,32 @@ export interface List {
   items: Item[];
 }
 ```
+
+```ts
+// 交换位置
+function swap(lists: List[], drag: CardDragItem, drop: CardDragItem) {
+  const isSameList = drag.listId === drop.listId;
+
+  if (isSameList) {
+    const list = lists.find((d) => d.id === drag.listId);
+    if (list) {
+      const i1 = list.items.findIndex((i) => i.id === drag.itemId);
+      const i2 = list.items.findIndex((i) => i.id === drop.itemId);
+      const temp = list.items[i1];
+      list.items[i1] = list.items[i2];
+      list.items[i2] = temp;
+    }
+  } else {
+    const list1 = lists.find((d) => d.id === drag.listId);
+    const list2 = lists.find((d) => d.id === drop.listId);
+    if (list1 && list2) {
+      const i1 = list1.items.findIndex((i) => i.id === drag.itemId);
+      const i2 = list2.items.findIndex((i) => i.id === drop.itemId);
+      const [item1] = list1.items.splice(i1, 1);
+      const [item2] = list2.items.splice(i2, 1);
+      list2.items.splice(i2, 0, item1);
+      list1.items.splice(i1, 0, item2);
+    }
+  }
+}
+```

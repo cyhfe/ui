@@ -165,9 +165,9 @@ function Column({ list, moveCard, setData }: ColumnProps) {
   const [, drop] = useDrop(() => ({
     accept: [ItemTypes.CARD, ItemTypes.COLUMN],
     drop(item: CardDragItem | ColumnDragItem, monitor) {
-      const didDrop = monitor.didDrop();
-      if (didDrop) return;
       if (item.type === ItemTypes.CARD) {
+        const didDrop = monitor.didDrop();
+        if (didDrop) return;
         setData((draft) => {
           const dragList = draft.find((l) => l.id === item.listId)?.items;
           const dragIndex = dragList?.findIndex((i) => i.id === item.itemId);
@@ -175,6 +175,15 @@ function Column({ list, moveCard, setData }: ColumnProps) {
           const [dragItem] = dragList?.splice(dragIndex, 1);
           const dropList = draft.find((l) => l.id === list.id)?.items;
           dragItem && dropList?.push(dragItem);
+        });
+      }
+      if (item.type === ItemTypes.COLUMN) {
+        setData((draft) => {
+          const dragListIndex = draft.findIndex((l) => l.id === item.listId);
+          const dropListIndex = draft.findIndex((l) => l.id === list.id);
+          const temp = draft[dragListIndex];
+          draft[dragListIndex] = draft[dropListIndex];
+          draft[dropListIndex] = temp;
         });
       }
     },
@@ -187,10 +196,13 @@ function Column({ list, moveCard, setData }: ColumnProps) {
       ref={ref}
       key={list.id}
       span={4}
-      css={css`
-        display: flex;
-        flex-direction: column;
-      `}
+      css={[
+        css`
+          display: flex;
+          flex-direction: column;
+        `,
+        { opacity: isDragging ? 0 : 1 },
+      ]}
     >
       <div
         css={css`
