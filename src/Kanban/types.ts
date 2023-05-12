@@ -27,7 +27,7 @@ export interface CardProps extends React.ComponentPropsWithoutRef<'div'> {
 }
 
 export interface ColumnProps {
-  lists: List[];
+  list: List;
   moveCard: (drag: DragItem, drop: DragItem) => void;
   setData: Updater<List[]>;
 }

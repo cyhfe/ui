@@ -1,6 +1,6 @@
 import { css } from '@emotion/react';
 import type { Identifier } from 'dnd-core';
-import { Fragment, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -135,60 +135,71 @@ function Card({ children, itemId, listId, moveCard, ...props }: CardProps) {
   );
 }
 
-function Column({ lists, moveCard, setData }: ColumnProps) {
-  // const [collectedProps, drop] = useDrop(() => ({
-  //   accept: ItemTypes.CARD,
-  // }));
+function Column({ list, moveCard, setData }: ColumnProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [, drop] = useDrop(() => ({
+    accept: ItemTypes.CARD,
+
+    drop(item: DragItem, monitor) {
+      const didDrop = monitor.didDrop();
+      if (didDrop) return;
+      setData((draft) => {
+        const dragList = draft.find((l) => l.id === item.listId)?.items;
+        const dragIndex = dragList?.findIndex((i) => i.id === item.itemId);
+        //@ts-ignore
+        const [dragItem] = dragList?.splice(dragIndex, 1);
+        const dropList = draft.find((l) => l.id === list.id)?.items;
+        dragItem && dropList?.push(dragItem);
+      });
+    },
+  }));
+
+  drop(ref);
 
   return (
-    <Fragment>
-      {lists.map((list) => {
-        return (
-          <Col
-            key={list.id}
-            span={4}
-            css={css`
-              display: flex;
-              flex-direction: column;
-            `}
-          >
-            <div
-              css={css`
-                background-color: #eceff1;
-                padding: 1rem;
-              `}
-            >
-              <h4
+    <Col
+      ref={ref}
+      key={list.id}
+      span={4}
+      css={css`
+        display: flex;
+        flex-direction: column;
+      `}
+    >
+      <div
+        css={css`
+          background-color: #eceff1;
+          padding: 1rem;
+        `}
+      >
+        <h4
+          css={css`
+            margin: 0;
+            margin-bottom: 0.5rem;
+          `}
+        >
+          {list.title}
+        </h4>
+        <div>
+          {list.items.map((item) => {
+            return (
+              <Card
+                key={item.id}
+                itemId={item.id}
+                listId={list.id}
+                moveCard={moveCard}
                 css={css`
-                  margin: 0;
-                  margin-bottom: 0.5rem;
+                  margin-bottom: 12px;
                 `}
               >
-                {list.title}
-              </h4>
-              <div>
-                {list.items.map((item) => {
-                  return (
-                    <Card
-                      key={item.id}
-                      itemId={item.id}
-                      listId={list.id}
-                      moveCard={moveCard}
-                      css={css`
-                        margin-bottom: 12px;
-                      `}
-                    >
-                      {item.content}
-                    </Card>
-                  );
-                })}
-              </div>
-              <AddItem setData={setData} listId={list.id}></AddItem>
-            </div>
-          </Col>
-        );
-      })}
-    </Fragment>
+                {item.content}
+              </Card>
+            );
+          })}
+        </div>
+        <AddItem setData={setData} listId={list.id}></AddItem>
+      </div>
+    </Col>
   );
 }
 
@@ -263,7 +274,16 @@ function Kanban() {
               gap: 1rem 0;
             `}
           >
-            <Column setData={setData} moveCard={moveCard} lists={data} />
+            {data.map((list) => {
+              return (
+                <Column
+                  key={list.id}
+                  list={list}
+                  moveCard={moveCard}
+                  setData={setData}
+                />
+              );
+            })}
           </Row>
         </Grid>
       </DndProvider>
