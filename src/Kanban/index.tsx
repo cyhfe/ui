@@ -1,26 +1,13 @@
 import { css } from '@emotion/react';
-import { useRef, useState } from 'react';
-import { Col, Grid, Row } from '../Grid';
-
 import type { Identifier } from 'dnd-core';
+import { Fragment, useRef, useState } from 'react';
+
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Updater, useImmer } from 'use-immer';
+import { useImmer } from 'use-immer';
+import { Col, Grid, Row } from '../Grid';
 import { ItemTypes } from './ItemTypes';
-
-interface DragItem {
-  itemId: number;
-  listId: number;
-}
-interface Item {
-  id: number;
-  content: string;
-}
-interface List {
-  id: number;
-  title: string;
-  items: Item[];
-}
+import { AddItemProps, CardProps, ColumnProps, DragItem, List } from './types';
 
 let LIST_ID = 4;
 let ITEM_ID = 6;
@@ -47,13 +34,6 @@ const mockData: List[] = [
   },
 ];
 
-interface CardProps extends React.ComponentPropsWithoutRef<'div'> {
-  children?: React.ReactNode;
-  itemId: number;
-  listId: number;
-  moveCard: (drag: DragItem, drop: DragItem) => void;
-}
-
 const cardBase = css`
   padding: 0.5rem;
   background: #fff;
@@ -66,64 +46,6 @@ const cardShadow = css`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.14);
   transition: box-shadow 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
 `;
-
-function Card({ children, itemId, listId, moveCard, ...props }: CardProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const [{ handlerId }, drop] = useDrop<
-    DragItem,
-    void,
-    { handlerId: Identifier | null }
-  >({
-    accept: ItemTypes.CARD,
-    collect(monitor) {
-      return {
-        handlerId: monitor.getHandlerId(),
-      };
-    },
-    drop(item: DragItem) {
-      if (!ref.current) return;
-      if (item.itemId === itemId) return;
-      // console.log(item.itemId, itemId);
-
-      moveCard(item, {
-        itemId,
-        listId,
-      });
-    },
-  });
-
-  const [{ isDragging }, drag] = useDrag({
-    type: ItemTypes.CARD,
-    item: () => {
-      return {
-        itemId,
-        listId,
-      };
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  drag(drop(ref));
-
-  return (
-    <div
-      css={[cardBase, cardShadow, { opacity: isDragging ? 0 : 1 }]}
-      ref={ref}
-      {...props}
-      data-id={handlerId}
-    >
-      {children}
-    </div>
-  );
-}
-
-interface AddItemProps {
-  setData: Updater<List[]>;
-  listId: number;
-}
 
 function AddItem({ setData, listId }: AddItemProps) {
   const [item, setItem] = useState('');
@@ -161,6 +83,115 @@ function AddItem({ setData, listId }: AddItemProps) {
     </div>
   );
 }
+
+function Card({ children, itemId, listId, moveCard, ...props }: CardProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const [{ handlerId }, drop] = useDrop<
+    DragItem,
+    void,
+    { handlerId: Identifier | null }
+  >({
+    accept: ItemTypes.CARD,
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
+    },
+    drop(item: DragItem) {
+      if (!ref.current) return;
+      if (item.itemId === itemId) return;
+      moveCard(item, {
+        itemId,
+        listId,
+      });
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.CARD,
+    item: () => {
+      return {
+        itemId,
+        listId,
+      };
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  drag(drop(ref));
+
+  return (
+    <div
+      css={[cardBase, cardShadow, { opacity: isDragging ? 0 : 1 }]}
+      ref={ref}
+      {...props}
+      data-id={handlerId}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Column({ lists, moveCard, setData }: ColumnProps) {
+  // const [collectedProps, drop] = useDrop(() => ({
+  //   accept: ItemTypes.CARD,
+  // }));
+
+  return (
+    <Fragment>
+      {lists.map((list) => {
+        return (
+          <Col
+            key={list.id}
+            span={4}
+            css={css`
+              display: flex;
+              flex-direction: column;
+            `}
+          >
+            <div
+              css={css`
+                background-color: #eceff1;
+                padding: 1rem;
+              `}
+            >
+              <h4
+                css={css`
+                  margin: 0;
+                  margin-bottom: 0.5rem;
+                `}
+              >
+                {list.title}
+              </h4>
+              <div>
+                {list.items.map((item) => {
+                  return (
+                    <Card
+                      key={item.id}
+                      itemId={item.id}
+                      listId={list.id}
+                      moveCard={moveCard}
+                      css={css`
+                        margin-bottom: 12px;
+                      `}
+                    >
+                      {item.content}
+                    </Card>
+                  );
+                })}
+              </div>
+              <AddItem setData={setData} listId={list.id}></AddItem>
+            </div>
+          </Col>
+        );
+      })}
+    </Fragment>
+  );
+}
+
 function swap(lists: List[], drag: DragItem, drop: DragItem) {
   const isSameList = drag.listId === drop.listId;
 
@@ -232,52 +263,7 @@ function Kanban() {
               gap: 1rem 0;
             `}
           >
-            {data.map((list) => {
-              return (
-                <Col
-                  key={list.id}
-                  span={4}
-                  css={css`
-                    display: flex;
-                    flex-direction: column;
-                  `}
-                >
-                  <div
-                    css={css`
-                      background-color: #eceff1;
-                      padding: 1rem;
-                    `}
-                  >
-                    <h4
-                      css={css`
-                        margin: 0;
-                        margin-bottom: 0.5rem;
-                      `}
-                    >
-                      {list.title}
-                    </h4>
-                    <div>
-                      {list.items.map((item) => {
-                        return (
-                          <Card
-                            key={item.id}
-                            itemId={item.id}
-                            listId={list.id}
-                            moveCard={moveCard}
-                            css={css`
-                              margin-bottom: 12px;
-                            `}
-                          >
-                            {item.content}
-                          </Card>
-                        );
-                      })}
-                    </div>
-                    <AddItem setData={setData} listId={list.id}></AddItem>
-                  </div>
-                </Col>
-              );
-            })}
+            <Column setData={setData} moveCard={moveCard} lists={data} />
           </Row>
         </Grid>
       </DndProvider>
