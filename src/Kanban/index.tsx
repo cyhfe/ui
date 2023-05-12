@@ -1,47 +1,57 @@
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Col, Grid, Row } from '../Grid';
 
+import type { Identifier } from 'dnd-core';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Updater, useImmer } from 'use-immer';
+import { ItemTypes } from './ItemTypes';
 
+interface DragItem {
+  itemId: number;
+  listId: number;
+}
 interface Item {
   id: number;
   content: string;
 }
-
 interface List {
   id: number;
   title: string;
   items: Item[];
 }
 
-let listId = 4;
-let itemId = 6;
+let LIST_ID = 4;
+let ITEM_ID = 6;
 
 const mockData: List[] = [
   {
     id: 1,
     title: 'todo',
     items: [
-      { id: 1, content: 'tsetsa' },
-      { id: 2, content: 'tse123dstsa' },
-      { id: 3, content: 'fda' },
+      { id: 1, content: '1-2aaa' },
+      { id: 2, content: '1-2bbb' },
+      { id: 3, content: '1-3ccc' },
     ],
   },
   {
     id: 2,
     title: 'in progress',
-    items: [{ id: 4, content: 'tsetsa' }],
+    items: [{ id: 4, content: '2-4' }],
   },
   {
     id: 3,
     title: 'done',
-    items: [{ id: 5, content: 'tsetsa' }],
+    items: [{ id: 5, content: '3-5' }],
   },
 ];
 
 interface CardProps extends React.ComponentPropsWithoutRef<'div'> {
   children?: React.ReactNode;
+  itemId: number;
+  listId: number;
+  moveCard: (drag: DragItem, drop: DragItem) => void;
 }
 
 const cardBase = css`
@@ -53,16 +63,58 @@ const cardBase = css`
 `;
 
 const cardShadow = css`
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  &:hover {
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
-  }
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.14);
+  transition: box-shadow 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
 `;
 
-function Card({ children, ...props }: CardProps) {
+function Card({ children, itemId, listId, moveCard, ...props }: CardProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const [{ handlerId }, drop] = useDrop<
+    DragItem,
+    void,
+    { handlerId: Identifier | null }
+  >({
+    accept: ItemTypes.CARD,
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
+    },
+    drop(item: DragItem) {
+      if (!ref.current) return;
+      if (item.itemId === itemId) return;
+      // console.log(item.itemId, itemId);
+
+      moveCard(item, {
+        itemId,
+        listId,
+      });
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.CARD,
+    item: () => {
+      return {
+        itemId,
+        listId,
+      };
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  drag(drop(ref));
+
   return (
-    <div css={[cardBase, cardShadow]} {...props}>
+    <div
+      css={[cardBase, cardShadow, { opacity: isDragging ? 0 : 1 }]}
+      ref={ref}
+      {...props}
+      data-id={handlerId}
+    >
       {children}
     </div>
   );
@@ -95,7 +147,7 @@ function AddItem({ setData, listId }: AddItemProps) {
             draft.forEach((list) => {
               if (list.id === listId) {
                 list.items.push({
-                  id: itemId++,
+                  id: ITEM_ID++,
                   content: item,
                 });
               }
@@ -110,6 +162,32 @@ function AddItem({ setData, listId }: AddItemProps) {
   );
 }
 
+function swap(lists: List[], drag: DragItem, drop: DragItem) {
+  const isSameList = drag.listId === drop.listId;
+  try {
+    if (isSameList) {
+      const list = lists.find((d) => d.id === drag.listId);
+      const i1 = list.items.findIndex((i) => i.id === drag.itemId);
+      const i2 = list.items.findIndex((i) => i.id === drop.itemId);
+      const temp = list.items[i1];
+      list.items[i1] = list.items[i2];
+      list.items[i2] = temp;
+    } else {
+      const list1 = lists.find((d) => d.id === drag.listId);
+      const list2 = lists.find((d) => d.id === drop.listId);
+      const i1 = list1.items.findIndex((i) => i.id === drag.itemId);
+      const i2 = list2.items.findIndex((i) => i.id === drop.itemId);
+
+      const [item1] = list1.items.splice(i1, 1);
+      const [item2] = list2.items.splice(i2, 1);
+      list2.items.splice(i2, 0, item1);
+      list1.items.splice(i1, 0, item2);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 function Kanban() {
   const [data, setData] = useImmer(mockData);
   const [title, setTitle] = useState('');
@@ -118,81 +196,92 @@ function Kanban() {
     if (!title) return;
     setData((draft) => {
       draft.push({
-        id: listId++,
+        id: LIST_ID++,
         title,
         items: [],
       });
     });
     setTitle('');
   }
+
+  function moveCard(drag: DragItem, drop: DragItem) {
+    setData((draft) => {
+      swap(draft, drag, drop);
+    });
+  }
+
   return (
     <div className="kanban">
-      <div
-        css={css`
-          margin-bottom: 0.5rem;
-        `}
-      >
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <button type="button" onClick={handleNewList}>
-          new list
-        </button>
-      </div>
-      <Grid>
-        <Row
+      <DndProvider backend={HTML5Backend}>
+        <div
           css={css`
-            gap: 1rem 0;
+            margin-bottom: 0.5rem;
           `}
         >
-          {data.map((list) => {
-            return (
-              <Col
-                key={list.id}
-                span={4}
-                css={css`
-                  display: flex;
-                  flex-direction: column;
-                `}
-              >
-                <div
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <button type="button" onClick={handleNewList}>
+            new list
+          </button>
+        </div>
+        <Grid>
+          <Row
+            css={css`
+              gap: 1rem 0;
+            `}
+          >
+            {data.map((list) => {
+              return (
+                <Col
+                  key={list.id}
+                  span={4}
                   css={css`
-                    background-color: #eceff1;
-                    padding: 1rem;
+                    display: flex;
+                    flex-direction: column;
                   `}
                 >
-                  <h4
+                  <div
                     css={css`
-                      margin: 0;
-                      margin-bottom: 0.5rem;
+                      background-color: #eceff1;
+                      padding: 1rem;
                     `}
                   >
-                    {list.title}
-                  </h4>
-                  <div>
-                    {list.items.map((item) => {
-                      return (
-                        <div key={item.id}>
+                    <h4
+                      css={css`
+                        margin: 0;
+                        margin-bottom: 0.5rem;
+                      `}
+                    >
+                      {list.title}
+                    </h4>
+                    <div>
+                      {list.items.map((item) => {
+                        return (
                           <Card
+                            key={item.id}
+                            itemId={item.id}
+                            listId={list.id}
+                            moveCard={moveCard}
                             css={css`
                               margin-bottom: 12px;
                             `}
                           >
                             {item.content}
                           </Card>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+                    <AddItem setData={setData} listId={list.id}></AddItem>
                   </div>
-                  <AddItem setData={setData} listId={list.id}></AddItem>
-                </div>
-              </Col>
-            );
-          })}
-        </Row>
-      </Grid>
+                </Col>
+              );
+            })}
+          </Row>
+        </Grid>
+      </DndProvider>
     </div>
   );
 }

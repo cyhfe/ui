@@ -70,7 +70,6 @@ interface ColProps extends React.ComponentPropsWithoutRef<'div'> {
 function getSpan(span?: number) {
   if (!span) return null;
   const percentage = (span / 12) * 100 + '%';
-  console.log(percentage);
 
   return css`
     flex: 0, 0, auto;
