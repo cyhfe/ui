@@ -66,7 +66,7 @@ function Example() {
 function App() {
   const [autoClose, setAutoClose] = React.useState(true);
   const [max, setMax] = React.useState<string | undefined>(undefined);
-  const [duration, setDuration] = React.useState(3000);
+  const [duration, setDuration] = React.useState(6000);
   const [position, setPosition] = React.useState<Position>('top-right');
 
   return (

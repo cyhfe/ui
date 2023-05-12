@@ -116,7 +116,7 @@ function ToastItem({
 
   const styles = useSpring({
     ref: apiRef,
-    from: { width: '100%', 'border-bottom-right-radius': '0' },
+    from: { width: '100%', borderBottomRightRadius: '0' },
     to: {
       width: '0',
     },
@@ -193,7 +193,7 @@ function ToastItem({
           border-bottom-left-radius: 6px;
           border-bottom-right-radius: 6px;
         `}
-        style={styles}
+        style={autoClose ? styles : {}}
       ></animated.div>
     </div>
   );
