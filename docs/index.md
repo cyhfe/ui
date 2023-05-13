@@ -4,7 +4,7 @@ hero:
   description: A low level react component library inspired by reach & Radix UI
   actions:
     - text: get started
-      link: /components/call-all
+      link: /components/animation
 
 features:
   - title: easy to extend
