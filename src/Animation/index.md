@@ -1,4 +1,15 @@
-<!-- # Animation
+# Animation
+
+目前组件大多只实现了逻辑部分.
+还需要加上样式和动画.
+动画选择了 React Spring 来实现.
+这里通过 demo 来熟悉 React Spring.
+
+## 需要完成的动画
+
+- [x] [toast](toast)
+- [ ] [kanban](kanban)
+- [ ] [dialog](dialog)
 
 ## useSpring
 
@@ -16,7 +27,7 @@ state 状态对应不同的 css 属性值
 
 `click | autoplay`
 
-<code src="./transition.tsx"></code> -->
+<code src="./transition.tsx"></code>
 
 ## useTail
 
