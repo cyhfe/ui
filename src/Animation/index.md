@@ -1,4 +1,4 @@
-# Animation
+<!-- # Animation
 
 ## useSpring
 
@@ -16,4 +16,11 @@ state 状态对应不同的 css 属性值
 
 `click | autoplay`
 
-<code src="./transition.tsx"></code>
+<code src="./transition.tsx"></code> -->
+
+## useTail
+
+编排一系列动画,在前一个即将结束时下一个动画开始.
+把 duration 调慢点看的更清楚
+
+<code src="./trail.tsx"></code>
