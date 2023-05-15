@@ -1,15 +1,18 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
-import { Dialog } from './index';
+// import { Dialog } from './index';
+import AnimatedDialog from './AnimatedDialog';
+
 function Demo() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnotherOpen, setIsAnotherOpen] = useState(false);
+
   return (
     <div>
       <button type="button" onClick={() => setIsOpen(true)}>
         open
       </button>
-      <Dialog
+      <AnimatedDialog
         isOpen={isOpen}
         onDismiss={() => {
           setIsOpen(false);
@@ -21,7 +24,7 @@ function Demo() {
             height: 100px;
           `}
         >
-          hello dialog
+          hello AnimatedDialog
         </div>
         <div
           css={css`
@@ -37,20 +40,20 @@ function Demo() {
             open another
           </button>
         </div>
-        <Dialog
+        <AnimatedDialog
           isOpen={isAnotherOpen}
           onDismiss={() => {
             setIsAnotherOpen(false);
           }}
         >
-          <div>hello dialog</div>
+          <div>hello AnimatedDialog</div>
           <div>
             <button type="button" onClick={() => setIsAnotherOpen(false)}>
               close another
             </button>
           </div>
-        </Dialog>
-      </Dialog>
+        </AnimatedDialog>
+      </AnimatedDialog>
     </div>
   );
 }

@@ -1,9 +1,8 @@
 import { css } from '@emotion/react';
-import { animated, useSpring } from '@react-spring/web';
 import React, { ComponentProps, useRef } from 'react';
 import Portal, { type PortalProps } from '../Portal';
 import { createContext } from '../createContext';
-interface DialogProps {
+export interface DialogProps {
   children?: React.ReactNode;
   isOpen: boolean;
   onDismiss?: () => void;
@@ -72,19 +71,13 @@ function DialogOverlay({ children, isOpen, onDismiss, ...props }: DialogProps) {
 
 interface DialogContentProps extends ComponentProps<'div'> {
   children?: React.ReactNode;
-  isOpen: boolean;
 }
 
-function DialogContent({ children, isOpen, ...rest }: DialogContentProps) {
+function DialogContent({ children, ...rest }: DialogContentProps) {
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const style = useSpring({
-    opcity: isOpen ? 1 : 0,
-    duration: 3000,
-  });
 
   return (
-    <animated.div
-      style={style}
+    <div
       ref={contentRef}
       onClick={(e) => e.stopPropagation()}
       css={css`
@@ -96,14 +89,14 @@ function DialogContent({ children, isOpen, ...rest }: DialogContentProps) {
       {...rest}
     >
       {children}
-    </animated.div>
+    </div>
   );
 }
 
 function Dialog({ children, isOpen = false, onDismiss = noop }: DialogProps) {
   return (
     <DialogOverlay isOpen={isOpen} onDismiss={onDismiss}>
-      <DialogContent isOpen={isOpen}>{children}</DialogContent>
+      <DialogContent>{children}</DialogContent>
     </DialogOverlay>
   );
 }

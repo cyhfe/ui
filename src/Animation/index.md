@@ -7,6 +7,7 @@
 ## 已完成的动画
 
 - [x] [toast](toast)
+- [x] [Dialog](dialog)
 
 ## useSpring
 
