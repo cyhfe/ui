@@ -36,7 +36,7 @@ function Demo() {
     scale: open ? 1 : 0,
   });
 
-  useChain(open ? [xApi, yApi, boxApi] : [boxApi, yApi, xApi], [0, 1, 2], 1500);
+  useChain([xApi, yApi, boxApi], [0, 1, 2], 1500);
 
   return (
     <div>
