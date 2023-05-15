@@ -3,7 +3,6 @@
 目前组件大多只实现了逻辑部分.
 还需要加上样式和动画.
 动画选择了 React Spring 来实现.
-这里通过 demo 来熟悉 React Spring.
 
 ## 需要完成的动画
 
@@ -29,7 +28,7 @@ state 状态对应不同的 css 属性值
 
 <code src="./transition.tsx"></code>
 
-## useTail
+## useTrail
 
 编排一系列动画,在前一个即将结束时下一个动画开始.
 把 duration 调慢点看的更清楚
@@ -69,7 +68,3 @@ fill="white"
 ```
 
 <code src="./springs.tsx"></code>
-
-```
-
-```
