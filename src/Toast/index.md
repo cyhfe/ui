@@ -4,15 +4,31 @@
 
 <code src="./demo.tsx">toast</code>
 
+- 根据不同 type 渲染对应 toast.内容可以是 message 参数或者 React.ReactNode 的 children
+- 通知渲染后开始一个 timer,duration 后关闭.期间鼠标悬停可以暂停,保存剩余时间.移开继续计时
+- 动画使用 ReactSpring 命令式 Api 与 timer 同步暂停和继续(不确定有没有更好的方案)
+
+```ts
+React.useEffect(() => {
+  const timer = timerRef.current;
+  autoClose && timer.start();
+  apiRef.start();
+  return () => {
+    autoClose && timer.clear();
+    apiRef.stop();
+  };
+}, [apiRef, autoClose]);
+```
+
 ### 思路
 
-全局 Root(Context) 维护一个队列 `queue: Toast[]`
+在 RootContext 中维护一个队列 `queue: Toast[]`
 
 Root 渲染 Portal(这种弹出层一般来说渲染在同一上下文,以便 z-index 管理层级)
 
 我们在任意组件`useToast`都能(从 context)拿到`setQueue`,通过 `queue map `渲染弹窗
 
-还需要维护一个 Timer,具备开始(mount),暂停(mouseenter),继续(mouseleave)的功能
+还需要维护一个 Timer,具备开始,暂停,继续的功能.
 
 ## 用法
 
