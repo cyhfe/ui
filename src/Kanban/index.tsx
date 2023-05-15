@@ -193,7 +193,6 @@ function Column({ list, moveCard, setData }: ColumnProps) {
 
   return (
     <Col
-      ref={ref}
       key={list.id}
       span={4}
       css={[
@@ -205,6 +204,7 @@ function Column({ list, moveCard, setData }: ColumnProps) {
       ]}
     >
       <div
+        ref={ref}
         css={css`
           background-color: #eceff1;
           padding: 1rem;

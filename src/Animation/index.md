@@ -1,14 +1,12 @@
 # Animation
 
 目前组件大多只实现了逻辑部分.
-还需要加上样式和动画.
+还需要完善样式和动画.
 动画选择了 React Spring 来实现.
 
-## 需要完成的动画
+## 已完成的动画
 
 - [x] [toast](toast)
-- [ ] [kanban](kanban)
-- [ ] [dialog](dialog)
 
 ## useSpring
 
