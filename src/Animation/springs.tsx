@@ -3,7 +3,7 @@ import { animated, useChain, useSpringRef, useTrail } from '@react-spring/web';
 import { useState } from 'react';
 
 function Demo() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const block = [
     [50, 30],

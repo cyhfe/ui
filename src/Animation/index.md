@@ -40,7 +40,7 @@ state 状态对应不同的 css 属性值
 
 [https://github.com/pmndrs/react-spring/blob/main/packages/core/src/hooks/useChain.ts#LL39C42-L39C42](https://github.com/pmndrs/react-spring/blob/main/packages/core/src/hooks/useChain.ts#LL39C42-L39C42)
 
-useChain 设置延迟
+useChain 做的是设置延迟
 
 ```ts
 // 使用
@@ -50,4 +50,26 @@ useChain([xApi, yApi, boxApi], [0, 1, 2], 1500);
 let delay = timeFrame * timeSteps[i];
 ```
 
+svg 的 scale ,只能在 style 里设置.
+
+```ts
+animated.rect
+key={i}
+style={{
+  transformOrigin: `${5 + block[i][0]}px ${
+    5 + block[i][1]
+  }px`,
+  scale,
+}}
+x={block[i][0]}
+y={block[i][1]}
+width={10}
+height={10}
+fill="white"
+```
+
 <code src="./springs.tsx"></code>
+
+```
+
+```
