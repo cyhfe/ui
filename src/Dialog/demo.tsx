@@ -23,7 +23,13 @@ function Demo() {
         >
           hello dialog
         </div>
-        <div>
+        <div
+          css={css`
+            display: flex;
+            justify-content: end;
+            column-gap: 6px;
+          `}
+        >
           <button type="button" onClick={() => setIsOpen(false)}>
             close
           </button>
