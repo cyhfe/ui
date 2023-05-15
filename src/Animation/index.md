@@ -1,4 +1,4 @@
-# Animation
+<!-- # Animation
 
 目前组件大多只实现了逻辑部分.
 还需要加上样式和动画.
@@ -34,4 +34,10 @@ state 状态对应不同的 css 属性值
 编排一系列动画,在前一个即将结束时下一个动画开始.
 把 duration 调慢点看的更清楚
 
-<code src="./trail.tsx"></code>
+<code src="./trail.tsx"></code> -->
+
+## useSprings + useTrail
+
+> 学完 D3,熟悉了 svg 之后写起这种形状真的流畅.
+
+<code src="./springs.tsx"></code>
