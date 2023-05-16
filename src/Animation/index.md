@@ -4,7 +4,7 @@
 还需要完善样式和动画.
 动画选择了 React Spring 来实现.
 
-## 已完成的动画
+已完成的动画
 
 - [x] [toast](toast)
 - [x] [Dialog](dialog)
@@ -67,3 +67,11 @@ fill="white"
 ```
 
 <code src="./springs.tsx"></code>
+
+## 插值
+
+<code src="./inter.tsx"></code>
+
+## 呼吸效果
+
+<code src="./breath.tsx"></code>
