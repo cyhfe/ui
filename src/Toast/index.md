@@ -4,6 +4,25 @@
 
 <code src="./demo.tsx">toast</code>
 
+#### 性能优化思考
+
+我们的组件 是 Context Provider 保存 queue,渲染 Portal.toast 方法往 queue 里 push message,重新渲染.
+
+```ts
+<Container>
+  <Portal />
+  ...
+<Container>
+```
+
+我们使用的时候可以在全局一个 `Container`, 组件通过 `const toast = useToast()`消费.
+
+这样我们改变一个状态,会从`Container`开始重新渲染
+
+为了减少不必要的重新渲染.尽量把 `Context` 下沉.需要 `toast` 的时候,在当前组件的父组件渲染 `Container`,这样应该是能获得更好的性能.
+
+## 实现
+
 - 根据不同 type 渲染对应 toast.内容可以是 message 参数或者 React.ReactNode 的 children
 - 通知渲染后开始一个 timer,duration 后关闭.期间鼠标悬停可以暂停,保存剩余时间.移开继续计时
 - 动画使用 ReactSpring 命令式 Api 与 timer 同步暂停和继续(不确定有没有更好的方案)
