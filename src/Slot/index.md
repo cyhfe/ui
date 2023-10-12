@@ -1,4 +1,4 @@
-# \_Slot
+# Slot
 
 <code src="./demo.tsx">demo</code>
 
