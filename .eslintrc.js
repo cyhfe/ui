@@ -1,5 +1,6 @@
 module.exports = {
   rules: {
+    'guard-for-in': 'off',
     'react/button-has-type': 'off',
     'no-unused-expressions': 'off',
     '@typescript-eslint/no-unused-expressions': [
