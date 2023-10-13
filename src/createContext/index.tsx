@@ -18,6 +18,7 @@ function createContext<ContextValueType extends object | null>(
 
     const value = React.useMemo(() => {
       return context;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, deps) as ContextValueType;
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

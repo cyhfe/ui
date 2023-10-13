@@ -63,7 +63,7 @@ function useControllableState<T>({
       }
     });
 
-  return [value, setValue];
+  return [value, setValue] as const;
 }
 
 export { useControllableState, useUncontrolledState };
