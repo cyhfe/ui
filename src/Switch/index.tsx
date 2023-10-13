@@ -1,6 +1,7 @@
 import React from 'react';
 
 interface SwitchProps extends React.ComponentPropsWithoutRef<'button'> {
+  defaultChecked?: boolean;
   checked?: boolean;
   onCheckedChange?(checked: boolean): void;
 }
