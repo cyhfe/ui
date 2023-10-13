@@ -79,7 +79,7 @@ const Thumb = () => {
       css={[
         ThumbBase,
         css`
-          left: ${checked ? '5px' : '35px'};
+          left: ${checked ? '35px' : '5px'};
         `,
       ]}
     ></span>
