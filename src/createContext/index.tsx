@@ -7,7 +7,7 @@ function createContext<ContextValueType extends object | null>(
   defaultContextValue?: ContextValueType,
 ): [
   ContextProvider<ContextValueType>,
-  (callerComponentName: string) => ContextValueType,
+  (consumerComponentName: string) => ContextValueType,
 ] {
   const Ctx = React.createContext(defaultContextValue);
 
