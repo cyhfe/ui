@@ -1,5 +1,9 @@
 # createContext
 
+使用 context 进行状态管理
+封装工具函数减少样板代码
+contextValue 使用 memo 缓存减少不必要的重新渲染
+
 ```tsx | pure
 import React, { PropsWithChildren } from 'react';
 
