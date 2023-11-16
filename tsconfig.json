@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "lib": ["dom", "dom.iterable"],
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,
