@@ -51,13 +51,31 @@ const Label = forwardRef<HTMLLabelElement, ComponentPropsWithoutRef<'label'>>(
   },
 );
 
-function Control() {}
+const Control = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
+  function Control(props, forwardRef) {
+    const { id, name } = useField('Control');
+    return <input {...props} id={id} name={name} ref={forwardRef} />;
+  },
+);
 
-function Message() {}
+const MessageImpl = forwardRef<
+  HTMLSpanElement,
+  ComponentPropsWithoutRef<'span'>
+>(function Message(props, forwardRef) {
+  return <span {...props} ref={forwardRef} />;
+});
+
+const Message = MessageImpl;
 
 function ValidityState() {}
 
-function Submit() {}
+// Submit
+const Submit = forwardRef<
+  HTMLButtonElement,
+  ComponentPropsWithoutRef<'button'>
+>(function Submit(props, forwardRef) {
+  return <button type="submit" {...props} ref={forwardRef} />;
+});
 
 const Root = Form;
 
