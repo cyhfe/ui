@@ -2,6 +2,7 @@ import { useId } from '../useId';
 import { useComposeRefs } from '../useComposeRefs';
 import React, { ComponentPropsWithoutRef, ReactNode, forwardRef } from 'react';
 import { createContext } from '../createContext';
+import { Label as LabelBase } from '../Label';
 
 // Form
 type FormELment = HTMLFormElement;
@@ -42,7 +43,13 @@ const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
   );
 });
 
-function Label() {}
+const Label = forwardRef<HTMLLabelElement, ComponentPropsWithoutRef<'label'>>(
+  function Label(props, forwardRef) {
+    const { id } = useField('Label');
+    const htmlFor = props.htmlFor || id;
+    return <LabelBase {...props} htmlFor={htmlFor} ref={forwardRef} />;
+  },
+);
 
 function Control() {}
 
