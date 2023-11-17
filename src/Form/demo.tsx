@@ -1,4 +1,24 @@
-// import * as Form from '.';
+import * as Form from '.';
+
+export default function Demo() {
+  return (
+    <Form.Root>
+      <Form.Field name="email">
+        <Form.Label>Email</Form.Label>
+        <Form.Control type="email" required />
+        <Form.Message>Email is required</Form.Message>
+        <Form.Message>Email is invalid</Form.Message>
+      </Form.Field>
+      <Form.Field name="password">
+        <Form.Label>Password</Form.Label>
+        <Form.Control type="password" required />
+        <Form.Message>Password is required</Form.Message>
+        <Form.Message>Password is not complex enough</Form.Message>
+      </Form.Field>
+      <Form.Submit>Submit</Form.Submit>
+    </Form.Root>
+  );
+}
 
 // export const Demo = () => {
 //   const [loading, setLoading] = React.useState(false);
