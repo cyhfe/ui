@@ -1,6 +1,9 @@
+import { useId } from '../useId';
 import { useComposeRefs } from '../useComposeRefs';
-import React, { ReactNode, forwardRef } from 'react';
+import React, { ComponentPropsWithoutRef, ReactNode, forwardRef } from 'react';
+import { createContext } from '../createContext';
 
+// Form
 type FormELment = HTMLFormElement;
 interface FormProps {
   children: ReactNode;
@@ -15,9 +18,29 @@ const Form = forwardRef<FormELment, FormProps>(function Form(
   return <form {...formProps} ref={composedFormRef} />;
 });
 
-function Field() {
-  return <div></div>;
+// Field
+interface FieldContextValue {
+  id: string;
+  name: string;
 }
+
+const [FieldProvider, useField] = createContext<FieldContextValue>('Field');
+interface FieldProps extends ComponentPropsWithoutRef<'div'> {
+  name: string;
+}
+
+const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
+  props,
+  forwardRef,
+) {
+  const id = useId();
+  const { name, ...rest } = props;
+  return (
+    <FieldProvider id={id} name={name}>
+      <div {...rest} ref={forwardRef}></div>;
+    </FieldProvider>
+  );
+});
 
 function Label() {}
 
@@ -31,4 +54,13 @@ function Submit() {}
 
 const Root = Form;
 
-export { Root, Field, Label, Control, Message, ValidityState, Submit };
+export {
+  Root,
+  Field,
+  Label,
+  Control,
+  Message,
+  ValidityState,
+  Submit,
+  useField,
+};
