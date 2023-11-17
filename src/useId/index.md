@@ -1,0 +1,19 @@
+# useId
+
+全局自增 id
+
+## 实现
+
+```tsx | pure
+import { useLayoutEffect, useState } from 'react';
+
+let GlobalId = 0;
+function useId() {
+  const [, setId] = useState<number | undefined>();
+  useLayoutEffect(() => {
+    setId(GlobalId++);
+  }, []);
+}
+
+export { useId };
+```
