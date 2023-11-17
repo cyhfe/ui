@@ -106,24 +106,27 @@ const Control = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
     const composedRef = useComposeRefs(forwardRef, inputRef);
     const { handleFieldValidityChange } = useValidation('Control');
 
-    const updateControlValidity = (control: HTMLInputElement) => {
-      if (hasBuiltInError(control.validity)) {
-        const controlValidity = validityStateToObject(control.validity);
-        onFieldValidityChange(name, controlValidity);
-        return;
-      }
-    };
+    const updateControlValidity = useCallback(
+      (control: HTMLInputElement) => {
+        if (hasBuiltInError(control.validity)) {
+          const controlValidity = validityStateToObject(control.validity);
+          handleFieldValidityChange(name, controlValidity);
+          return;
+        }
+      },
+      [name, handleFieldValidityChange],
+    );
 
     useEffect(() => {
       const input = inputRef.current;
       if (input) {
         const handleChange = () => {
-          handleFieldValidityChange(name, input.validity);
+          updateControlValidity(input);
         };
         input.addEventListener('change', handleChange);
         return () => input.removeEventListener('change', handleChange);
       }
-    }, [handleFieldValidityChange, name]);
+    }, [updateControlValidity, name]);
 
     return (
       <input
@@ -222,12 +225,12 @@ const Message = forwardRef<MessageImplElement, MessageProps>(function Message(
   return <FormBuildInMessagge {...rest} match={match} ref={forwardRef} />;
 });
 
-const FormCustomMessage = forwardRef(function FormCustomMessage(
-  props,
-  forwardRef,
-) {
-  return null;
-});
+// const FormCustomMessage = forwardRef(function FormCustomMessage(
+//   props,
+//   forwardRef,
+// ) {
+//   return null;
+// });
 
 function ValidityState() {}
 
@@ -239,16 +242,25 @@ const Submit = forwardRef<
   return <button type="submit" {...props} ref={forwardRef} />;
 });
 
+type ValidityStateKey = keyof ValidityState;
 function hasBuiltInError(validity: ValidityState) {
   let error = false;
   for (const validityKey in validity) {
-    const key = validityKey as keyof ValidityState;
+    const key = validityKey as ValidityStateKey;
     if (key !== 'valid' && key !== 'customError' && validity[key]) {
       error = true;
       break;
     }
   }
   return error;
+}
+
+function validityStateToObject(validity: ValidityState) {
+  const object: any = {};
+  for (const key in validity) {
+    object[key] = validity[key as ValidityStateKey];
+  }
+  return object as Record<ValidityStateKey, boolean>;
 }
 
 const Root = Form;

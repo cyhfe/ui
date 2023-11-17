@@ -13,7 +13,7 @@ function useId() {
   useLayoutEffect(() => {
     setId(GlobalId++);
   }, []);
-  return String(id) ?? '';
+  return `ui-${id}` ?? '';
 }
 
 export { useId };
