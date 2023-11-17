@@ -6,7 +6,7 @@ function useId() {
   useLayoutEffect(() => {
     setId(GlobalId++);
   }, []);
-  return `ui-${id}` ?? '';
+  return id ? `ui-${id}` : '';
 }
 
 export { useId };

@@ -32,6 +32,36 @@ type SyncCustomMatcherEntry = { id: string; match: SyncCustomMatcher };
 type AsyncCustomMatcherEntry = { id: string; match: AsyncCustomMatcher };
 type CustomMatcherArgs = [string, FormData];
 
+const validityMatchers = [
+  'badInput',
+  'patternMismatch',
+  'rangeOverflow',
+  'rangeUnderflow',
+  'stepMismatch',
+  'tooLong',
+  'tooShort',
+  'typeMismatch',
+  'valid',
+  'valueMissing',
+] as const;
+
+type ValidityMatcher = (typeof validityMatchers)[number];
+
+const DEFAULT_INVALID_MESSAGE = 'This value is not valid';
+
+const DEFAULT_BUILT_IN_MESSAGES: Record<ValidityMatcher, string | undefined> = {
+  badInput: DEFAULT_INVALID_MESSAGE,
+  patternMismatch: 'This value does not match the required pattern',
+  rangeOverflow: 'This value is too large',
+  rangeUnderflow: 'This value is too small',
+  stepMismatch: 'This value does not match the required step',
+  tooLong: 'This value is too long',
+  tooShort: 'This value is too short',
+  typeMismatch: 'This value does not match the required type',
+  valid: undefined,
+  valueMissing: 'This value is missing',
+};
+
 interface ValidationContextValue {
   // built-in
   handleFieldValidityChange: (name: string, state: ValidityState) => void;
@@ -47,6 +77,12 @@ interface ValidationContextValue {
   handleFieldCustomMatcherEntryRemove(
     fieldName: string,
     matcherEntryId: string,
+  ): void;
+
+  getFieldCustomErrors(fieldName: string): Record<string, boolean>;
+  handleFieldCustomErrorsChange(
+    fieldName: string,
+    errors: Record<string, boolean>,
   ): void;
 }
 
@@ -119,6 +155,26 @@ const Form = forwardRef<FormELment, FormProps>(function Form(
     [customMatcherEntriesMap],
   );
 
+  const [customErrors, setCustomErrors] = useState<CustomErrorsMap>({});
+
+  const handleFieldCustomErrorsChange: ValidationContextValue['handleFieldCustomErrorsChange'] =
+    useCallback((fieldName, customErrors) => {
+      setCustomErrors((prev) => ({
+        ...prev,
+        [fieldName]: {
+          ...(prev[fieldName] ?? {}),
+          ...customErrors,
+        },
+      }));
+    }, []);
+
+  const getFieldCustomErrors = useCallback(
+    (fieldName: string) => {
+      return customErrors[fieldName];
+    },
+    [customErrors],
+  );
+
   return (
     <ValidationProvider
       handleFieldValidityChange={handleFieldValidityChange}
@@ -127,6 +183,8 @@ const Form = forwardRef<FormELment, FormProps>(function Form(
       handleFieldCustomMatcherEntryAdd={handleFieldCustomMatcherEntryAdd}
       handleFieldCustomMatcherEntryRemove={handleFieldCustomMatcherEntryRemove}
       getFieldCustomMatcherEntries={getFieldCustomMatcherEntries}
+      handleFieldCustomErrorsChange={handleFieldCustomErrorsChange}
+      getFieldCustomErrors={getFieldCustomErrors}
     >
       <form {...formProps} ref={composedFormRef} />;
     </ValidationProvider>
@@ -171,6 +229,9 @@ const Control = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
     const inputRef = useRef<HTMLInputElement | null>(null);
     const composedRef = useComposeRefs(forwardRef, inputRef);
     const { handleFieldValidityChange } = useValidation('Control');
+    const { getFieldCustomMatcherEntries, handleFieldCustomErrorsChange } =
+      useValidation('Control');
+    const customMatcherEntries = getFieldCustomMatcherEntries(name);
 
     const updateControlValidity = useCallback(
       (control: HTMLInputElement) => {
@@ -189,8 +250,32 @@ const Control = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
 
         const syncCustomMatcherEntries: Array<SyncCustomMatcherEntry> = [];
         const ayncCustomMatcherEntries: Array<AsyncCustomMatcherEntry> = [];
+
+        customMatcherEntries.forEach((customMatcherEntry) => {
+          if (isAsyncCustomMatcherEntry(customMatcherEntry, matcherArgs)) {
+            ayncCustomMatcherEntries.push(customMatcherEntry);
+          } else if (isSyncCustomMatcherEntry(customMatcherEntry)) {
+            syncCustomMatcherEntries.push(customMatcherEntry);
+          }
+        });
+
+        const syncCustomErrors = syncCustomMatcherEntries.map(
+          ({ id, match }) => {
+            return [id, match(...matcherArgs)] as const;
+          },
+        );
+        const syncCustomErrorsById = Object.fromEntries(syncCustomErrors);
+        const hasSyncCustomErrors =
+          Object.values(syncCustomErrorsById).some(Boolean);
+        const hasCustomError = hasSyncCustomErrors;
+        control.setCustomValidity(
+          hasCustomError ? DEFAULT_INVALID_MESSAGE : '',
+        );
+        const controlValidity = validityStateToObject(control.validity);
+        handleFieldValidityChange(name, controlValidity);
+        handleFieldCustomErrorsChange(name, syncCustomErrorsById);
       },
-      [name, handleFieldValidityChange],
+      [customMatcherEntries, handleFieldValidityChange, name],
     );
 
     useEffect(() => {
@@ -217,35 +302,6 @@ const Control = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
 );
 
 // Message
-const validityMatchers = [
-  'badInput',
-  'patternMismatch',
-  'rangeOverflow',
-  'rangeUnderflow',
-  'stepMismatch',
-  'tooLong',
-  'tooShort',
-  'typeMismatch',
-  'valid',
-  'valueMissing',
-] as const;
-
-type ValidityMatcher = (typeof validityMatchers)[number];
-
-const DEFAULT_INVALID_MESSAGE = 'This value is not valid';
-
-const DEFAULT_BUILT_IN_MESSAGES: Record<ValidityMatcher, string | undefined> = {
-  badInput: DEFAULT_INVALID_MESSAGE,
-  patternMismatch: 'This value does not match the required pattern',
-  rangeOverflow: 'This value is too large',
-  rangeUnderflow: 'This value is too small',
-  stepMismatch: 'This value does not match the required step',
-  tooLong: 'This value is too long',
-  tooShort: 'This value is too short',
-  typeMismatch: 'This value does not match the required type',
-  valid: undefined,
-  valueMissing: 'This value is missing',
-};
 
 type MessageImplElement = HTMLSpanElement;
 
@@ -283,13 +339,20 @@ interface CustomMessageProps extends ComponentPropsWithoutRef<'span'> {
 
 const FormCustomMessage = forwardRef<MessageImplElement, CustomMessageProps>(
   function FormCustomMessage(props, forwardRef) {
-    const { match, ...rest } = props;
+    const { match, children, ...rest } = props;
     const customMessageId = useId();
     const { name } = useField('FormCustomMessage');
     const {
       handleFieldCustomMatcherEntryAdd,
       handleFieldCustomMatcherEntryRemove,
     } = useValidation('FormCustomMessage');
+
+    const { getFieldCustomErrors } = useValidation('FormCustomMessage');
+    const customErrors = getFieldCustomErrors(name);
+
+    console.log(customErrors);
+
+    const matches = customMessageId ?? customErrors[customMessageId];
 
     useEffect(() => {
       handleFieldCustomMatcherEntryAdd(name, { id: customMessageId, match });
@@ -303,6 +366,14 @@ const FormCustomMessage = forwardRef<MessageImplElement, CustomMessageProps>(
       match,
       name,
     ]);
+
+    if (matches) {
+      return (
+        <MessageImpl {...rest} ref={forwardRef}>
+          {children || DEFAULT_INVALID_MESSAGE}
+        </MessageImpl>
+      );
+    }
 
     return null;
   },
@@ -357,6 +428,27 @@ function validityStateToObject(validity: ValidityState) {
     object[key] = validity[key as ValidityStateKey];
   }
   return object as Record<ValidityStateKey, boolean>;
+}
+
+function isAsyncCustomMatcherEntry(
+  entry: CustomMatcherEntry,
+  args: CustomMatcherArgs,
+): entry is AsyncCustomMatcherEntry {
+  return (
+    entry.match.constructor.name === 'AsyncFunction' ||
+    returnsPromise(entry.match, args)
+  );
+}
+
+function isSyncCustomMatcherEntry(
+  entry: CustomMatcherEntry,
+): entry is SyncCustomMatcherEntry {
+  return entry.match.constructor.name === 'Function';
+}
+
+type AnyFunction = (...args: any[]) => any;
+function returnsPromise(func: AnyFunction, args: Array<unknown>) {
+  return func(...args) instanceof Promise;
 }
 
 const Root = Form;
