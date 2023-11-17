@@ -6,16 +6,17 @@ export default function Demo() {
       <Form.Field name="email">
         <Form.Label>Email</Form.Label>
         <Form.Control type="email" required />
-        <Form.Message>Email is required</Form.Message>
-        <Form.Message>Email is invalid</Form.Message>
+        <Form.Message match="valueMissing">match valueMissing</Form.Message>
+        <Form.Message match="typeMismatch">match typeMismatch</Form.Message>
       </Form.Field>
       <Form.Field name="password">
         <Form.Label>Password</Form.Label>
         <Form.Control type="password" required />
-        <Form.Message>Password is required</Form.Message>
-        <Form.Message>Password is not complex enough</Form.Message>
+        <Form.Message match="valueMissing">Password is required</Form.Message>
+        <Form.Message match={(value) => value.match(/.*[0-9]+.*/) === null}>
+          Password is not complex enough
+        </Form.Message>
       </Form.Field>
-      <Form.Submit>Submit</Form.Submit>
     </Form.Root>
   );
 }

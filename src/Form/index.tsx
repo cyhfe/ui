@@ -1,22 +1,70 @@
 import { useId } from '../useId';
 import { useComposeRefs } from '../useComposeRefs';
-import React, { ComponentPropsWithoutRef, ReactNode, forwardRef } from 'react';
+import React, {
+  ComponentPropsWithoutRef,
+  ReactNode,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 import { createContext } from '../createContext';
 import { Label as LabelBase } from '../Label';
 
 // Form
-type FormELment = HTMLFormElement;
-interface FormProps {
-  children: ReactNode;
+
+// Validation
+
+type ValidityMap = { [fieldName: string]: ValidityState | undefined };
+
+interface ValidationContextValue {
+  handleFieldValidityChange: (name: string, state: ValidityState) => void;
+  handleFieldValidityClear: (name: string) => void;
+  getFieldValidity: (name: string) => ValidityState | undefined;
 }
 
+const [ValidationProvider, useValidation] =
+  createContext<ValidationContextValue>('Form');
+interface FormProps extends ComponentPropsWithoutRef<'form'> {
+  children?: ReactNode;
+}
+
+type FormELment = HTMLFormElement;
 const Form = forwardRef<FormELment, FormProps>(function Form(
   formProps,
   forwardRef,
 ) {
   const formRef = React.useRef<HTMLFormElement | null>(null);
   const composedFormRef = useComposeRefs(forwardRef, formRef);
-  return <form {...formProps} ref={composedFormRef} />;
+
+  // validation
+  const [validityMap, setValidityMap] = React.useState<ValidityMap>({});
+
+  const handleFieldValidityChange = useCallback(
+    (name: string, state: ValidityState) => {
+      setValidityMap((prev) => ({ ...prev, [name]: state }));
+    },
+    [],
+  );
+
+  const handleFieldValidityClear = useCallback((name: string) => {
+    setValidityMap((prev) => ({ ...prev, [name]: undefined }));
+  }, []);
+
+  const getFieldValidity = useCallback(
+    (name: string) => validityMap[name],
+    [validityMap],
+  );
+
+  return (
+    <ValidationProvider
+      handleFieldValidityChange={handleFieldValidityChange}
+      handleFieldValidityClear={handleFieldValidityClear}
+      getFieldValidity={getFieldValidity}
+    >
+      <form {...formProps} ref={composedFormRef} />;
+    </ValidationProvider>
+  );
 });
 
 // Field
@@ -54,7 +102,38 @@ const Label = forwardRef<HTMLLabelElement, ComponentPropsWithoutRef<'label'>>(
 const Control = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
   function Control(props, forwardRef) {
     const { id, name } = useField('Control');
-    return <input {...props} id={id} name={name} ref={forwardRef} />;
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const composedRef = useComposeRefs(forwardRef, inputRef);
+    const { handleFieldValidityChange } = useValidation('Control');
+
+    const updateControlValidity = (control: HTMLInputElement) => {
+      if (hasBuiltInError(control.validity)) {
+        const controlValidity = validityStateToObject(control.validity);
+        onFieldValidityChange(name, controlValidity);
+        return;
+      }
+    };
+
+    useEffect(() => {
+      const input = inputRef.current;
+      if (input) {
+        const handleChange = () => {
+          handleFieldValidityChange(name, input.validity);
+        };
+        input.addEventListener('change', handleChange);
+        return () => input.removeEventListener('change', handleChange);
+      }
+    }, [handleFieldValidityChange, name]);
+
+    return (
+      <input
+        {...props}
+        id={id}
+        name={name}
+        ref={composedRef}
+        // onChange={() => console.log('react change')}
+      />
+    );
   },
 );
 
@@ -73,6 +152,12 @@ const validityMatchers = [
 ] as const;
 
 type ValidityMatcher = (typeof validityMatchers)[number];
+type SyncCustomMatcher = (value: string, formData: FormData) => boolean;
+type AsyncCustomMatcher = (
+  value: string,
+  formData: FormData,
+) => Promise<boolean>;
+type CustomMatcher = SyncCustomMatcher | AsyncCustomMatcher;
 
 const DEFAULT_INVALID_MESSAGE = 'This value is not valid';
 
@@ -98,17 +183,29 @@ const MessageImpl = forwardRef<
   return <span {...props} ref={forwardRef} />;
 });
 
+interface FormBuildInMessaggeProps extends ComponentPropsWithoutRef<'span'> {
+  match: ValidityMatcher;
+}
+
 const FormBuildInMessagge = forwardRef<
   MessageImplElement,
-  ComponentPropsWithoutRef<'span'>
+  FormBuildInMessaggeProps
 >(function FormBuildInMessagge(props, forwardRef) {
-  const matches = false;
-  if (matches) return <MessageImpl {...props} ref={forwardRef} />;
+  const { children, match, ...rest } = props;
+  const { name } = useField('FormBuildInMessagge');
+  const { getFieldValidity } = useValidation('FormBuildInMessagge');
+  const matches = getFieldValidity(name)?.[match];
+  if (matches)
+    return (
+      <MessageImpl {...rest} ref={forwardRef}>
+        {children || DEFAULT_BUILT_IN_MESSAGES[match]}
+      </MessageImpl>
+    );
   return null;
 });
 
 interface MessageProps extends ComponentPropsWithoutRef<'span'> {
-  match?: ValidityMatcher;
+  match?: ValidityMatcher | ((value: any) => boolean);
 }
 
 const Message = forwardRef<MessageImplElement, MessageProps>(function Message(
@@ -122,15 +219,15 @@ const Message = forwardRef<MessageImplElement, MessageProps>(function Message(
         {props.children || DEFAULT_INVALID_MESSAGE}
       </MessageImpl>
     );
-  return <FormBuildInMessagge {...rest} ref={forwardRef} />;
+  return <FormBuildInMessagge {...rest} match={match} ref={forwardRef} />;
 });
 
-// const FormCustomMessage = forwardRef(function FormCustomMessage(
-//   props,
-//   forwardRef,
-// ) {
-//   return null;
-// });
+const FormCustomMessage = forwardRef(function FormCustomMessage(
+  props,
+  forwardRef,
+) {
+  return null;
+});
 
 function ValidityState() {}
 
@@ -141,6 +238,18 @@ const Submit = forwardRef<
 >(function Submit(props, forwardRef) {
   return <button type="submit" {...props} ref={forwardRef} />;
 });
+
+function hasBuiltInError(validity: ValidityState) {
+  let error = false;
+  for (const validityKey in validity) {
+    const key = validityKey as keyof ValidityState;
+    if (key !== 'valid' && key !== 'customError' && validity[key]) {
+      error = true;
+      break;
+    }
+  }
+  return error;
+}
 
 const Root = Form;
 
