@@ -283,7 +283,26 @@ interface CustomMessageProps extends ComponentPropsWithoutRef<'span'> {
 
 const FormCustomMessage = forwardRef<MessageImplElement, CustomMessageProps>(
   function FormCustomMessage(props, forwardRef) {
-    useEffect(() => {}, []);
+    const { match, ...rest } = props;
+    const customMessageId = useId();
+    const { name } = useField('FormCustomMessage');
+    const {
+      handleFieldCustomMatcherEntryAdd,
+      handleFieldCustomMatcherEntryRemove,
+    } = useValidation('FormCustomMessage');
+
+    useEffect(() => {
+      handleFieldCustomMatcherEntryAdd(name, { id: customMessageId, match });
+      return () => {
+        handleFieldCustomMatcherEntryRemove(name, customMessageId);
+      };
+    }, [
+      customMessageId,
+      handleFieldCustomMatcherEntryAdd,
+      handleFieldCustomMatcherEntryRemove,
+      match,
+      name,
+    ]);
 
     return null;
   },
