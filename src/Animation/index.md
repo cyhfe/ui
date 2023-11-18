@@ -1,15 +1,5 @@
 # Animation
 
-test
-目前组件大多只实现了逻辑部分.
-还需要完善样式和动画.
-动画选择了 React Spring 来实现.
-
-已完成的动画
-
-- [x] [toast](toast)
-- [x] [Dialog](dialog)
-
 ## useSpring
 
 state 状态对应不同的 css 属性值
