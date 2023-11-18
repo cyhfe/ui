@@ -1,7 +1,8 @@
 export default function Demo() {
   return (
-    <form action="">
-      <input type="file" />
+    <form onSubmit={(e) => e.preventDefault()}>
+      <input type="file" multiple />
+      <button type="submit">upload</button>
     </form>
   );
 }
