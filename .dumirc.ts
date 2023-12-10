@@ -16,8 +16,7 @@ export default defineConfig({
   extraBabelPresets: ['@emotion/babel-preset-css-prop'],
   headScripts: [
     {
-      src: 'https://cdn.jsdelivr.net/npm/@cyhfe/tracker@0.0.8/dist/tracker.js',
-      defer: true,
+      src: 'https://cdn.jsdelivr.net/npm/@cyhfe/tracker@0.0.9/dist/tracker.js',
       'data-wid': '16e4b486-fb08-4c4a-847f-0ac5715fcd0d',
     },
   ],
